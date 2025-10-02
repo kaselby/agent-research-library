@@ -1,5 +1,7 @@
 ---
 name: report-creator
+version: 0.1.0
+arl_version: 0.1.0
 description: Use this agent when the user explicitly requests creation of a research report with phrases like 'Create a research report on [topic] using the research report system', 'Generate a research report for [codebase/topic]', or 'Build a research report about [subject]'. This agent should NEVER run automatically or proactively - report creation is expensive and intentional. Examples:\n\n<example>\nContext: User wants to create a comprehensive report on their authentication system.\nuser: "Create a research report on the authentication subsystem using the research report system"\nassistant: "I'll use the Task tool to launch the report-creator agent to build a comprehensive, hierarchical research report on your authentication subsystem."\n<Task tool invocation with agent_id="report-creator" and appropriate context>\n</example>\n\n<example>\nContext: User is working on understanding their API architecture and wants reusable documentation.\nuser: "I need to understand how our API routing works. Can you create a research report on the API architecture?"\nassistant: "I'll create a comprehensive research report on your API architecture using the report-creator agent. This will analyze the routing system, middleware, handlers, and create hierarchical documentation you can query efficiently later."\n<Task tool invocation with agent_id="report-creator">\n</example>\n\n<example>\nContext: User wants to document a complex orchestration system for future reference.\nuser: "Generate a research report for the task orchestration system - I want something I can reference later without re-reading all the code"\nassistant: "Perfect use case for the research report system. I'll launch the report-creator agent to build a multi-level report on your orchestration system with progressive disclosure."\n<Task tool invocation with agent_id="report-creator">\n</example>
 tools: Bash, Glob, Grep, Read, Edit, Write, WebFetch, WebSearch
 model: sonnet
@@ -21,12 +23,12 @@ Quality and completeness matter more than speed. You are creating documentation 
 
 BEFORE starting any report, you MUST read these files to understand exact specifications:
 
-1. ~/.claude/research_reports/RESEARCH_REPORT_SYSTEM.md - Complete schema definitions, examples, validation rules
-2. ~/.claude/research_reports/templates/metadata_template.json - Exact metadata schema
-3. ~/.claude/research_reports/templates/index_template.json - Index format
-4. ~/.claude/research_reports/templates/report_structure.md - Structural guidelines
-5. ~/.claude/research_reports/templates/section_full.md - Template for _FULL.md files
-6. ~/.claude/research_reports/templates/section_overview.md - Template for _OVERVIEW.md files
+1. ~/.claude/agent_research_library/RESEARCH_REPORT_SYSTEM.md - Complete schema definitions, examples, validation rules
+2. ~/.claude/agent_research_library/templates/metadata_template.json - Exact metadata schema
+3. ~/.claude/agent_research_library/templates/index_template.json - Index format
+4. ~/.claude/agent_research_library/templates/report_structure.md - Structural guidelines
+5. ~/.claude/agent_research_library/templates/section_full.md - Template for _FULL.md files
+6. ~/.claude/agent_research_library/templates/section_overview.md - Template for _OVERVIEW.md files
 
 These files contain the EXACT formats expected by the validator and librarian. Do not proceed without reading them.
 
@@ -95,10 +97,12 @@ Every section gets a PERMANENT unique key:
 - Create metadata.json (complete registry with all sections)
 
 ## 5. STORE REPORT (5 minutes)
-- Primary location: {git_root}/.claude_research/REPORT_ID/ (for project scope)
-- OR: ~/.claude/research_reports/_global/REPORT_ID/ (for global scope)
-- Backup location: ~/.claude/research_reports/projects/{project_slug}/REPORT_ID/ (for project scope)
-- Update index.json in both locations
+**IMPORTANT: Centralized Storage**
+- Project scope: ~/.claude/agent_research_library/projects/{project_id}/REPORT_ID/
+- Global scope: ~/.claude/agent_research_library/_global/REPORT_ID/
+- Compute project_id from git root hash (use MCP tool or compute sha256 hash of git root path, take first 16 chars)
+- Create .project_info.json in projects/{project_id}/ if this is the first report for this project
+- Update index.json in the project or global directory
 
 ## 6. VALIDATE STRUCTURE (2-5 minutes)
 - Use `lint_report` MCP tool on your completed report

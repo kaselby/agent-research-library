@@ -1,0 +1,47 @@
+{
+  "version": "0.1.0",
+  "installed_date": "2025-10-02T00:00:00Z",
+  "install_path": "~/.claude/agent_research_library",
+  "components": {
+    "mcp_tools": {
+      "version": "1.0.0",
+      "path": "~/.claude/agent_research_library/mcp_tools",
+      "registered": true
+    },
+    "agents": {
+      "report-creator": {
+        "version": "0.1.0",
+        "path": "~/.claude/agents/report-creator.md",
+        "installed": true
+      },
+      "research-report-finder": {
+        "version": "0.1.0",
+        "path": "~/.claude/agents/research-report-finder.md",
+        "installed": true
+      },
+      "research-librarian": {
+        "version": "0.1.0",
+        "path": "~/.claude/agents/research-librarian.md",
+        "installed": true
+      },
+      "report-validator": {
+        "version": "0.1.0",
+        "model": "opus",
+        "path": "~/.claude/agents/report-validator.md",
+        "installed": true
+      }
+    },
+    "global_instructions": {
+      "enabled": true,
+      "version": "0.1.0",
+      "content_hash": "abc123def456",
+      "path": "~/.claude/CLAUDE.md"
+    }
+  },
+  "installation_method": "install.sh",
+  "system_info": {
+    "os": "darwin",
+    "node_version": "18.0.0",
+    "claude_cli_available": true
+  }
+}

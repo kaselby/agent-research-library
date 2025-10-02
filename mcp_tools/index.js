@@ -6,41 +6,61 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createHash } from 'crypto';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
+const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * Find the project root by looking for .git or .claude_research directories
- */
-async function findProjectRoot(startPath) {
-  let currentPath = startPath;
+// Centralized storage path
+const ARL_BASE = path.join(process.env.HOME, '.claude', 'agent_research_library');
 
-  while (currentPath !== '/') {
+/**
+ * Get project ID from git root or working directory
+ */
+async function getProjectId(workingDir) {
+  try {
+    // Try to get git root
+    const {stdout: gitRoot} = await execAsync('git rev-parse --show-toplevel', {cwd: workingDir});
+    const rootPath = gitRoot.trim();
+
+    // Hash the git root path to create stable project ID
+    return createHash('sha256').update(rootPath).digest('hex').slice(0, 16);
+  } catch {
+    // Fallback: use directory name + path hash
+    const dirName = path.basename(workingDir);
+    return createHash('sha256').update(`${dirName}-${workingDir}`).digest('hex').slice(0, 16);
+  }
+}
+
+/**
+ * Get project name from git or directory
+ */
+async function getProjectName(workingDir) {
+  try {
+    // Try git remote first
+    const {stdout: remote} = await execAsync('git remote get-url origin', {cwd: workingDir});
+    return path.basename(remote.trim(), '.git');
+  } catch {
     try {
-      // Check for .git directory
-      await fs.access(path.join(currentPath, '.git'));
-      return currentPath;
+      // Try git root directory name
+      const {stdout: gitRoot} = await execAsync('git rev-parse --show-toplevel', {cwd: workingDir});
+      return path.basename(gitRoot.trim());
     } catch {
-      // Not found, try .claude_research
-      try {
-        await fs.access(path.join(currentPath, '.claude_research'));
-        return currentPath;
-      } catch {
-        // Move up one directory
-        currentPath = path.dirname(currentPath);
-      }
+      // Fallback: current directory name
+      return path.basename(workingDir);
     }
   }
-
-  return null;
 }
 
 /**
  * Get the project-level research index
  */
-async function getProjectIndex(projectPath) {
-  const indexPath = path.join(projectPath, '.claude_research', 'index.json');
+async function getProjectIndex(projectId) {
+  const projectPath = path.join(ARL_BASE, 'projects', projectId);
+  const indexPath = path.join(projectPath, 'index.json');
 
   try {
     const content = await fs.readFile(indexPath, 'utf-8');
@@ -57,7 +77,7 @@ async function getProjectIndex(projectPath) {
  * Get the global research index
  */
 async function getGlobalIndex() {
-  const globalPath = path.join(process.env.HOME, '.claude', 'research_reports', '_global', 'index.json');
+  const globalPath = path.join(ARL_BASE, '_global', 'index.json');
 
   try {
     const content = await fs.readFile(globalPath, 'utf-8');
@@ -75,7 +95,7 @@ async function getGlobalIndex() {
  */
 const reportRegistryTool = tool(
   'check_report_exists',
-  'Check if a research report exists for a given topic. Returns the report path if found, or suggests creating one if not found.',
+  'Check if a research report exists for a given topic. Returns the report path if found, or suggests creating one if not found. Uses centralized storage in ~/.claude/agent_research_library/',
   {
     topic: z.string().describe('The topic or library name to search for (e.g., "acme_api", "authentication_system")'),
     working_directory: z.string().optional().describe('The current working directory (defaults to process.cwd())')
@@ -84,27 +104,31 @@ const reportRegistryTool = tool(
     const workingDir = args.working_directory || process.cwd();
     const topicNormalized = args.topic.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 
-    // Try project-level first
-    const projectRoot = await findProjectRoot(workingDir);
-    if (projectRoot) {
-      const projectIndex = await getProjectIndex(projectRoot);
-      if (projectIndex && projectIndex.reports) {
-        const found = projectIndex.reports.find(r =>
-          r.topic_normalized === topicNormalized ||
-          r.topic.toLowerCase() === args.topic.toLowerCase()
-        );
+    // Get project ID for this working directory
+    const projectId = await getProjectId(workingDir);
+    const projectName = await getProjectName(workingDir);
 
-        if (found) {
-          return {
-            exists: true,
-            scope: 'project',
-            report_path: path.join(projectRoot, '.claude_research', found.directory),
-            topic: found.topic,
-            created: found.created,
-            updated: found.updated,
-            message: `Report found: ${found.topic}`
-          };
-        }
+    // Try project-level first
+    const projectIndex = await getProjectIndex(projectId);
+    if (projectIndex && projectIndex.reports) {
+      const found = projectIndex.reports.find(r =>
+        r.topic_normalized === topicNormalized ||
+        r.topic.toLowerCase() === args.topic.toLowerCase()
+      );
+
+      if (found) {
+        const reportPath = path.join(ARL_BASE, 'projects', projectId, found.directory);
+        return {
+          exists: true,
+          scope: 'project',
+          report_path: reportPath,
+          project_id: projectId,
+          project_name: projectName,
+          topic: found.topic,
+          created: found.created,
+          updated: found.updated,
+          message: `Report found in project "${projectName}": ${found.topic}`
+        };
       }
     }
 
@@ -117,7 +141,7 @@ const reportRegistryTool = tool(
       );
 
       if (found) {
-        const globalPath = path.join(process.env.HOME, '.claude', 'research_reports', '_global', found.directory);
+        const globalPath = path.join(ARL_BASE, '_global', found.directory);
         return {
           exists: true,
           scope: 'global',
@@ -134,7 +158,9 @@ const reportRegistryTool = tool(
     return {
       exists: false,
       topic: args.topic,
-      message: `No report found for "${args.topic}". You can create one using the report-creator subagent.`
+      project_id: projectId,
+      project_name: projectName,
+      message: `No report found for "${args.topic}". You can create one using the report-creator subagent. It will be stored in ~/.claude/agent_research_library/projects/${projectId}/`
     };
   }
 );

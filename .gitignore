@@ -22,4 +22,6 @@ test_reports/
 
 # Node modules
 node_modules/
-package-lock.json
+
+# Keep package-lock.json for reproducible installs
+# package-lock.json is intentionally tracked in mcp_tools/
