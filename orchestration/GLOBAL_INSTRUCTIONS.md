@@ -37,18 +37,19 @@ User: "How does authentication work in huggingface?"
 
 ## Creating Reports
 
-**CRITICAL**: Only create research reports when the user **explicitly mentions "research report"** or "research system" in their request.
+**CRITICAL**: Only create research reports when the user **explicitly mentions "Agent Research Library" or "Research Library"** by name.
 
 **When to create reports:**
-- ✓ User says: "Create a research report on [topic]"
-- ✓ User says: "Generate a research report for [library]"
-- ✓ User says: "Build a research report about [system]"
+- ✓ User says: "Create a research report on [topic] using the Agent Research Library"
+- ✓ User says: "Generate a research report for [library] with the Research Library"
+- ✓ User says: "Use the Agent Research Library to document [system]"
 
 **When NOT to create reports:**
+- ✗ User says: "Create a research report on [topic]" → This is NOT specific enough, ask for confirmation
 - ✗ User says: "Research the authentication system for me" → Query existing reports or search codebase
 - ✗ User says: "Can you document how OAuth works here?" → Use normal documentation tools
 - ✗ User says: "Summarize the API architecture" → Use normal analysis and summarization
-- ✗ Any vague request that could be interpreted as a simple query or documentation task
+- ✗ Any request that doesn't specifically mention "Agent Research Library" or "Research Library" by name
 
 **If there's any ambiguity**, ask the user for confirmation before creating a report. Report creation is expensive and should never happen automatically.
 

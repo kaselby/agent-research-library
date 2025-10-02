@@ -99,7 +99,9 @@ Examples:
 
 ### Creating a Report
 
-User explicitly requests: `"Create a research report on [library_name] using the research report system"`
+User explicitly requests: `"Create a research report on [library_name] using the Agent Research Library"`
+
+**IMPORTANT**: Only create reports when the user specifically mentions "Agent Research Library" or "Research Library" by name.
 
 1. Main Claude launches `report-creator` subagent
 2. Agent analyzes codebase with Read, Glob, Grep tools
