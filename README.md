@@ -97,27 +97,29 @@ Or manually add to `~/.claude.json`:
 
 Restart Claude Code after configuration.
 
-### 3. Create Subagents
+### 3. Install Subagents
 
-Manually create three subagents in Claude Code:
+**Option A: Automatic (File-based discovery)**
 
-#### Agent 1: report-creator
-- **Name**: `report-creator`
-- **Model**: Sonnet 3.5
-- **Description**: Copy from `~/.claude/research_reports/agents/report-creator.md`
-- **Tools**: Read, Glob, Grep, Write, WebFetch, Bash
+Copy agent files to Claude Code's agent directory:
 
-#### Agent 2: report-validator
-- **Name**: `report-validator`
-- **Model**: **Opus** ⚠️ (MUST be Opus, not Sonnet)
-- **Description**: Copy from `~/.claude/research_reports/agents/report-validator.md`
-- **Tools**: Read, Glob, Grep
+```bash
+cp ~/.claude/research_reports/agents/*.md ~/.claude/agents/
+```
 
-#### Agent 3: research-librarian
-- **Name**: `research-librarian`
-- **Model**: Sonnet 3.5
-- **Description**: Copy from `~/.claude/research_reports/agents/research-librarian.md`
-- **Tools**: Read, Glob, Grep
+Restart Claude Code. The agents will be auto-discovered.
+
+**Option B: Manual (via Claude Code UI)**
+
+Create three subagents manually in Claude Code. The agent definition files contain YAML frontmatter with all configuration:
+
+- `~/.claude/research_reports/agents/report-creator.md`
+- `~/.claude/research_reports/agents/report-validator.md`
+- `~/.claude/research_reports/agents/research-librarian.md`
+
+Copy the entire file contents (including YAML frontmatter) as the agent description.
+
+**⚠️ Important:** `report-validator` MUST use Opus model, not Sonnet.
 
 ### 4. Test
 
