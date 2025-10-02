@@ -16,55 +16,49 @@ The system consists of three main components:
 
 ### Key Components
 
-- **report-creator** (Sonnet): Analyzes codebases and generates hierarchical research reports
-- **report-validator** (Opus): Validates conceptual accuracy and catches architectural misunderstandings
+- **report-creator** (Sonnet): Analyzes codebases and generates hierarchical research reports with automatic structure validation
+- **research-report-finder** (Haiku): Intelligent fuzzy search to find existing reports using synonyms and related terms
 - **research-librarian** (Sonnet): Efficiently queries reports and recommends relevant sections
-- **MCP Tools**: JavaScript tools for checking report existence and validating report structure
+- **report-validator** (Opus or Sonnet): Validates conceptual accuracy - model chosen during installation
+- **MCP Tools**: JavaScript tools for linting report structure (lint_report)
 
 ## Installation and Setup
 
-### Install Files
+### Automated Installation
 
 ```bash
 ./install.sh
 ```
 
-This installs files to `~/.claude/research_reports/` including:
-- Documentation (RESEARCH_REPORT_SYSTEM.md, CLAUDE_CODE_INTEGRATION.md)
-- Agent definitions (in `agents/`)
-- MCP tools (in `mcp_tools/`)
-- Report templates (in `templates/`)
+The installer automatically:
+1. **Copies files** to `~/.claude/research_reports/`:
+   - Documentation (RESEARCH_REPORT_SYSTEM.md, CLAUDE_CODE_INTEGRATION.md)
+   - MCP tools (in `mcp_tools/`)
+   - Report templates (in `templates/`)
+2. **Installs MCP server** via `claude mcp add` command
+3. **Installs 4 agents** to `~/.claude/agents/` for auto-discovery:
+   - `report-creator.md` (Sonnet)
+   - `research-report-finder.md` (Haiku)
+   - `research-librarian.md` (Sonnet)
+   - `report-validator.md` (Opus recommended, or Sonnet)
+4. **Prompts for validator model choice** (Opus/Sonnet)
+5. **Configures global CLAUDE.md** with system instructions
 
-### Configure MCP Server
+After installation, **restart Claude Code** to load agents and MCP tools.
 
-Add to `~/.claude.json`:
+### Manual Installation (if needed)
 
-```json
-{
-  "mcpServers": {
-    "research-report-tools": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["~/.claude/research_reports/mcp_tools/index.js"]
-    }
-  }
-}
+If the automated installer fails, you can manually configure:
+
+**MCP Server:**
+```bash
+claude mcp add research-report-tools -- node ~/.claude/research_reports/mcp_tools/index.js
 ```
 
-Or use CLI: `claude mcp add research-report-tools -- node ~/.claude/research_reports/mcp_tools/index.js`
-
-### Install Subagents
-
-Copy agent files to Claude Code's agent directory:
-
+**Agents:**
 ```bash
 cp ~/.claude/research_reports/agents/*.md ~/.claude/agents/
 ```
-
-Or manually create three subagents using the agent definition files in `~/.claude/research_reports/agents/`:
-- `report-creator.md` (Sonnet)
-- `report-validator.md` (Opus - **must use Opus**)
-- `research-librarian.md` (Sonnet)
 
 ## Report Structure
 
@@ -103,14 +97,14 @@ Examples:
 
 ### Creating a Report
 
-User explicitly requests: `"Create a research report on [library_name]"`
+User explicitly requests: `"Create a research report on [library_name] using the research report system"`
 
 1. Main Claude launches `report-creator` subagent
 2. Agent analyzes codebase with Read, Glob, Grep tools
 3. Agent creates hierarchical report structure
-4. Linter validates format (automatic)
-5. User chooses validation depth (Quick/Standard/Thorough/Skip)
-6. `report-validator` (Opus) validates conceptual accuracy
+4. **Agent automatically validates structure with linter and fixes any issues**
+5. Main Claude prompts user for validation depth (Quick/Standard/Thorough/Skip)
+6. `report-validator` validates conceptual accuracy
 7. If critical issues found, `report-creator` fixes them
 
 **Validation Depth Levels:**
@@ -122,15 +116,16 @@ User explicitly requests: `"Create a research report on [library_name]"`
 
 User asks question about documented topic: `"How does [library] handle [feature]?"`
 
-1. Main Claude uses `check_report_exists` MCP tool
-2. If report exists, launch `research-librarian` subagent
-3. Librarian reads only relevant sections (~1700 tokens vs ~50K for full codebase)
-4. Returns summary + section recommendations
-5. Main Claude answers user with efficient context
+1. Main Claude launches `research-report-finder` agent (Haiku, fast fuzzy search)
+2. Finder intelligently searches using synonyms and related terms (e.g., "auth" finds "authentication")
+3. If report exists, launch `research-librarian` subagent
+4. Librarian reads only relevant sections (~1700 tokens vs ~50K for full codebase)
+5. Returns summary + section recommendations
+6. Main Claude answers user with efficient context
 
 ### When Report Doesn't Exist
 
-1. MCP tool returns `exists: false`
+1. Finder agent returns `NOT FOUND`
 2. Answer question using traditional codebase search
 3. Optionally suggest creating a report for future queries
 
@@ -181,11 +176,13 @@ cat ~/.claude/research_reports/RESEARCH_REPORT_SYSTEM.md
 
 ## Important Notes
 
-- `report-validator` **MUST** use Opus model for accurate validation
+- `report-validator` can use **Opus** (recommended, more accurate) or **Sonnet** (faster, users without Opus access)
+- Validator model choice is made during `./install.sh` - creates appropriate agent file
 - Add `.claude_research/` to project `.gitignore`
 - Reports are project-scoped by default (stored in project directory)
 - Global reports (patterns, frameworks) go in `~/.claude/research_reports/_global/`
 - Section keys are stable - don't change after creation
+- Structural validation is automatic (report-creator self-lints before returning)
 
 ## Cross-References
 
@@ -199,7 +196,10 @@ Reports can reference other sections:
 - **README.md**: User-facing quick start guide
 - **RESEARCH_REPORT_SYSTEM.md**: Complete system specification (~2000 lines)
 - **CLAUDE_CODE_INTEGRATION.md**: Technical integration guide
+- **orchestration/GLOBAL_INSTRUCTIONS.md**: Brief global Claude Code instructions (~500 tokens, added to ~/.claude/CLAUDE.md)
+- **orchestration/REPORT_CREATION.md**: Detailed report creation workflow for main Claude
 - **agents/*.md**: Agent definitions with YAML frontmatter
+- **agent_prompts/*.txt**: Original prompts used to create agents (for reference)
 
 ## Troubleshooting
 
@@ -208,8 +208,9 @@ Reports can reference other sections:
 - Verify report ID in index
 - Check backup: `~/.claude/research_reports/projects/`
 
-**Validation uses Sonnet instead of Opus:**
-- Verify `report-validator` agent configured for Opus model
+**Want to change validator model:**
+- Re-run `./install.sh` and choose different model when prompted
+- Or manually copy `agents/report-validator-opus.md` or `agents/report-validator-sonnet.md` to `~/.claude/research_reports/agents/report-validator.md`
 
 **MCP tools not available:**
 - Restart Claude Code after adding to `~/.claude.json`
@@ -241,10 +242,10 @@ Reports can reference other sections:
 - Cross-reference related sections with `[SECTION_KEY]`
 
 ### For Querying
-- Always check `check_report_exists` before traditional search
-- Start with _OVERVIEW files (cheapest)
-- Navigate hierarchy before reading _FULL sections
-- Trust librarian recommendations
+- research-report-finder uses fuzzy matching (no need for exact topic names)
+- Finder understands synonyms: "auth" → "authentication", "oauth" → finds AUTHENTICATION report
+- Trust librarian recommendations - it reads enough to understand what to load
+- Librarian focuses on completeness over token optimization
 
 ## Example Usage
 

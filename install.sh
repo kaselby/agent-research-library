@@ -55,6 +55,17 @@ if command -v node &> /dev/null; then
     npm install --silent
     chmod +x index.js
     cd - > /dev/null
+
+    # Configure MCP server using Claude CLI
+    if command -v claude &> /dev/null; then
+        echo "Configuring MCP server..."
+        claude mcp add research-report-tools -- node "$TARGET_DIR/mcp_tools/index.js" 2>/dev/null && \
+            echo "✓ MCP server configured" || \
+            echo "✓ MCP server already configured or manually add later"
+    else
+        echo "⚠️  Claude CLI not found. You'll need to manually configure MCP tools."
+        echo "   Run: claude mcp add research-report-tools -- node $TARGET_DIR/mcp_tools/index.js"
+    fi
 else
     echo "⚠️  Node.js not found. MCP tools will need manual setup."
     echo "   Install Node.js, then run: cd $TARGET_DIR/mcp_tools && npm install"
@@ -100,12 +111,21 @@ else
     echo "✓ Configured validator to use Opus (recommended)"
 fi
 
-# Copy agent definitions with the chosen validator
+# Copy agent definitions with the chosen validator to staging
 echo "Copying agent definitions..."
 cp "$SCRIPT_DIR/agents/report-creator.md" "$TARGET_DIR/agents/"
 cp "$SCRIPT_DIR/agents/report-finder.md" "$TARGET_DIR/agents/"
 cp "$SCRIPT_DIR/agents/research-librarian.md" "$TARGET_DIR/agents/"
 cp "$SCRIPT_DIR/agents/$VALIDATOR_SOURCE" "$TARGET_DIR/agents/report-validator.md"
+
+# Install agents to Claude Code directory for auto-discovery
+echo "Installing agents for Claude Code..."
+mkdir -p "$CLAUDE_DIR/agents"
+cp "$TARGET_DIR/agents/report-creator.md" "$CLAUDE_DIR/agents/"
+cp "$TARGET_DIR/agents/report-finder.md" "$CLAUDE_DIR/agents/research-report-finder.md"
+cp "$TARGET_DIR/agents/research-librarian.md" "$CLAUDE_DIR/agents/"
+cp "$TARGET_DIR/agents/report-validator.md" "$CLAUDE_DIR/agents/"
+echo "✓ Agents installed to $CLAUDE_DIR/agents/"
 
 # Handle CLAUDE.md integration
 echo ""
@@ -150,23 +170,18 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  Next Steps"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "1. Configure MCP Tools"
-echo "   See: $TARGET_DIR/mcp_tools/README.md"
-echo "   Quick: Add to ~/.claude.json or use 'claude mcp add'"
+echo "1. Restart Claude Code"
+echo "   The system is fully configured with:"
+echo "   • MCP tools (research-report-tools)"
+echo "   • 4 specialized agents:"
+echo "     - report-creator (Sonnet)"
+echo "     - report-validator ($VALIDATOR_MODEL_NAME)"
+echo "     - research-librarian (Sonnet)"
+echo "     - research-report-finder (Haiku)"
 echo ""
-echo "2. Create 3 Claude Code Subagents"
-echo ""
-echo "   a) report-creator (Sonnet)"
-echo "      Description: $TARGET_DIR/agents/report-creator.md"
-echo "      Tools: Read, Glob, Grep, Write, WebFetch, Bash"
-echo ""
-echo "   b) report-validator ($VALIDATOR_MODEL_NAME)"
-echo "      Description: $TARGET_DIR/agents/report-validator.md"
-echo "      Tools: Read, Glob, Grep, Edit, Write"
-echo ""
-echo "   c) research-librarian (Sonnet)"
-echo "      Description: $TARGET_DIR/agents/research-librarian.md"
-echo "      Tools: Read, Glob, Grep"
+echo "2. Test the system"
+echo "   Try creating a research report:"
+echo "   > \"Create a research report on [your library]\""
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Documentation"

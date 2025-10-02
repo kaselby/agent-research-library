@@ -22,7 +22,7 @@ cd claude-research-system
 ./install.sh
 ```
 
-Then create three subagents in Claude Code (see [Setup](#setup) below).
+The installer will automatically set up agents and prompt for configuration options.
 
 ## What It Does
 
@@ -63,63 +63,36 @@ Main Claude
 
 ## Setup
 
-### 1. Install Files
+### 1. Run Installation
 
 ```bash
 ./install.sh
 ```
 
-This copies files to `~/.claude/research_reports/` and installs MCP tools.
+The installer will:
+- Copy files to `~/.claude/research_reports/`
+- Install Node.js dependencies for MCP tools
+- Automatically configure MCP server using Claude CLI
+- Install 4 specialized agents to `~/.claude/agents/`
+- Prompt for validator model choice (Opus recommended, Sonnet available)
+- Configure global CLAUDE.md instructions
 
-### 2. Configure MCP Tools
+### 2. Restart Claude Code
 
-See `~/.claude/research_reports/mcp_tools/README.md` for full instructions.
+After installation completes, restart Claude Code to load the new configuration.
 
-**Quick setup** (user-level, available in all projects):
+### 3. Verify Installation
 
-```bash
-claude mcp add research-report-tools -- node ~/.claude/research_reports/mcp_tools/index.js
-```
+Check that the following are available:
 
-Or manually add to `~/.claude.json`:
+**MCP Tools:**
+- Run `/mcp` in Claude Code to verify `research-report-tools` is listed
 
-```json
-{
-  "mcpServers": {
-    "research-report-tools": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["~/.claude/research_reports/mcp_tools/index.js"]
-    }
-  }
-}
-```
-
-Restart Claude Code after configuration.
-
-### 3. Install Subagents
-
-**Option A: Automatic (File-based discovery)**
-
-Copy agent files to Claude Code's agent directory:
-
-```bash
-cp ~/.claude/research_reports/agents/*.md ~/.claude/agents/
-```
-
-Restart Claude Code. The agents will be auto-discovered.
-
-**Option B: Manual (via Claude Code UI)**
-
-Create three subagents manually in Claude Code. The agent definition files contain YAML frontmatter with all configuration:
-
-- `~/.claude/research_reports/agents/report-creator.md`
-- `~/.claude/research_reports/agents/report-validator.md`
-- `~/.claude/research_reports/agents/research-librarian.md`
-
-Copy the entire file contents (including YAML frontmatter) as the agent description.
-
-**⚠️ Important:** `report-validator` MUST use Opus model, not Sonnet.
+**Agents:**
+- **report-creator** (Sonnet)
+- **report-validator** (Opus or Sonnet)
+- **research-librarian** (Sonnet)
+- **research-report-finder** (Haiku)
 
 ### 4. Test
 
