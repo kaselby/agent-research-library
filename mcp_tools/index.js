@@ -288,7 +288,10 @@ const reportLinterTool = tool(
 const server = createSdkMcpServer({
   name: 'research-report-tools',
   version: '1.0.0',
-  tools: [reportRegistryTool, reportLinterTool]
+  // NOTE: check_report_exists tool is disabled - use research-report-finder agent instead
+  // The agent provides intelligent fuzzy search with synonyms, which is more user-friendly
+  // Code is kept here for reference but not registered
+  tools: [reportLinterTool]
 });
 
 // Start the server

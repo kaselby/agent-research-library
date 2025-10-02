@@ -54,12 +54,12 @@ research-librarian navigates the report:
 ```
 Main Claude
   ├─ MCP Tools:
-  │  ├─ check_report_exists (checks if report exists)
   │  └─ lint_report (format validation)
   │
   └─ Subagents:
      ├─ report-creator (Sonnet) → Creates reports
      ├─ report-validator (Opus) → Validates accuracy
+     ├─ research-report-finder (Haiku) → Finds existing reports
      └─ research-librarian (Sonnet) → Queries efficiently
 ```
 

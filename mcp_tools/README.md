@@ -2,26 +2,12 @@
 
 Custom MCP tools for the Claude Research Report System.
 
-## Tools Included
+## Active Tools
 
-### 1. check_report_exists
-Check if a research report exists for a given topic.
-
-**Parameters:**
-- `topic` (string, required): The topic or library name to search for
-- `working_directory` (string, optional): Current working directory
-
-**Returns:**
-- `exists` (boolean): Whether the report exists
-- `scope` (string): "project" or "global" if found
-- `report_path` (string): Absolute path to the report directory
-- `topic` (string): The matched topic name
-- `created` (string): ISO timestamp of creation
-- `updated` (string): ISO timestamp of last update
-- `message` (string): Human-readable status message
-
-### 2. lint_report
+### lint_report
 Validate the structure and formatting of a research report.
+
+This is the only MCP tool currently active. Report searching is handled by the `research-report-finder` agent, which provides intelligent fuzzy search with synonym support.
 
 **Parameters:**
 - `report_path` (string, required): Absolute path to report directory
@@ -82,19 +68,14 @@ claude mcp add --scope project research-report-tools -- node ~/.claude/research_
 
 ## Verifying Installation
 
-After installation, restart Claude Code. The tools should appear with names:
-- `mcp__research-report-tools__check_report_exists`
+After installation, restart Claude Code. The tool should appear as:
 - `mcp__research-report-tools__lint_report`
 
 You can verify by asking Claude: "What MCP tools do you have available?"
 
-## Usage Examples
+**Note:** Report searching is handled by the `research-report-finder` agent (Haiku), which provides intelligent fuzzy search with synonym support.
 
-### Check if a report exists
-```
-User: "Do we have a research report on acme_api?"
-Claude: [Uses mcp__research-report-tools__check_report_exists]
-```
+## Usage Examples
 
 ### Validate a report
 ```
