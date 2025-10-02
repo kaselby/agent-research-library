@@ -36,14 +36,13 @@ mkdir -p "$TARGET_DIR"/{agents,templates,_global,projects,mcp_tools}
 # Copy documentation
 echo "Copying documentation..."
 cp "$SCRIPT_DIR/docs/"*.md "$TARGET_DIR/"
+cp "$SCRIPT_DIR/orchestration/REPORT_CREATION.md" "$TARGET_DIR/"
 
 # Copy templates
 echo "Copying templates..."
 cp "$SCRIPT_DIR/templates/"* "$TARGET_DIR/templates/"
 
-# Copy agent definitions
-echo "Copying agent definitions..."
-cp "$SCRIPT_DIR/agents/"*.md "$TARGET_DIR/agents/"
+# Copy agent definitions (will be done after validator model choice)
 
 # Copy MCP tools
 echo "Copying MCP tools..."
@@ -76,6 +75,70 @@ if [ ! -f "$TARGET_DIR/_global/index.json" ]; then
 EOF
 fi
 
+# Prompt for validator model choice
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Validator Configuration"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "The report-validator agent checks conceptual accuracy of reports."
+echo ""
+echo "Which model should it use?"
+echo "  1) Opus (recommended) - More accurate, catches subtle errors"
+echo "  2) Sonnet - Faster and cheaper, good for most cases"
+echo ""
+read -p "Choose [1/2] (default: 1): " -n 1 -r VALIDATOR_MODEL
+echo ""
+
+if [[ $VALIDATOR_MODEL == "2" ]]; then
+    VALIDATOR_MODEL_NAME="sonnet"
+    VALIDATOR_SOURCE="report-validator-sonnet.md"
+    echo "✓ Configured validator to use Sonnet"
+else
+    VALIDATOR_MODEL_NAME="opus"
+    VALIDATOR_SOURCE="report-validator-opus.md"
+    echo "✓ Configured validator to use Opus (recommended)"
+fi
+
+# Copy agent definitions with the chosen validator
+echo "Copying agent definitions..."
+cp "$SCRIPT_DIR/agents/report-creator.md" "$TARGET_DIR/agents/"
+cp "$SCRIPT_DIR/agents/report-finder.md" "$TARGET_DIR/agents/"
+cp "$SCRIPT_DIR/agents/research-librarian.md" "$TARGET_DIR/agents/"
+cp "$SCRIPT_DIR/agents/$VALIDATOR_SOURCE" "$TARGET_DIR/agents/report-validator.md"
+
+# Handle CLAUDE.md integration
+echo ""
+echo "Configuring global CLAUDE.md..."
+CLAUDE_MD="$CLAUDE_DIR/CLAUDE.md"
+
+if [ -f "$CLAUDE_MD" ]; then
+    # Check if already added
+    if grep -q "Claude Research Report System" "$CLAUDE_MD" 2>/dev/null; then
+        echo "✓ Research Report System already configured in CLAUDE.md"
+    else
+        # File exists, offer to append
+        echo ""
+        echo "Found existing $CLAUDE_MD"
+        read -p "Add Research Report System instructions to it? [Y/n] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
+            echo "" >> "$CLAUDE_MD"
+            echo "---" >> "$CLAUDE_MD"
+            echo "" >> "$CLAUDE_MD"
+            cat "$SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md" >> "$CLAUDE_MD"
+            echo "✓ Added Research Report System instructions to CLAUDE.md"
+        else
+            echo "⚠️  Skipped CLAUDE.md update. You can manually add:"
+            echo "   $SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md"
+        fi
+    fi
+else
+    # No CLAUDE.md exists, create it
+    cat "$SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md" > "$CLAUDE_MD"
+    echo "✓ Created $CLAUDE_MD with Research Report System instructions"
+fi
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  ✓ Installation Complete!"
@@ -97,9 +160,9 @@ echo "   a) report-creator (Sonnet)"
 echo "      Description: $TARGET_DIR/agents/report-creator.md"
 echo "      Tools: Read, Glob, Grep, Write, WebFetch, Bash"
 echo ""
-echo "   b) report-validator (Opus) ⚠️  MUST USE OPUS"
+echo "   b) report-validator ($VALIDATOR_MODEL_NAME)"
 echo "      Description: $TARGET_DIR/agents/report-validator.md"
-echo "      Tools: Read, Glob, Grep"
+echo "      Tools: Read, Glob, Grep, Edit, Write"
 echo ""
 echo "   c) research-librarian (Sonnet)"
 echo "      Description: $TARGET_DIR/agents/research-librarian.md"
