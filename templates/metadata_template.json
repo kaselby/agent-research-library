@@ -1,0 +1,70 @@
+{
+  "id": "REPORT_ID",
+  "title": "Report Title",
+  "created": "2025-10-02T10:00:00Z",
+  "updated": "2025-10-02T10:00:00Z",
+  "version": "1.0",
+  "author": "report-creator",
+  "scope": "project|global",
+  "project_id": "project_name",
+  "project_path": "/path/to/project",
+  "confidence_level": "high|medium|low",
+  "tags": ["tag1", "tag2"],
+
+  "dependencies": {
+    "internal": ["OTHER_REPORT_ID"],
+    "external": ["library_name", "framework_name"]
+  },
+
+  "cross_references": {
+    "allowed_scopes": ["same_project", "global"],
+    "linked_reports": [
+      {
+        "report_id": "RELATED_REPORT",
+        "scope": "project|global",
+        "relationship": "integration|reference|dependency"
+      }
+    ]
+  },
+
+  "sections": [
+    {
+      "key": "REPORT_ID:SECTION_NAME",
+      "title": "Section Title",
+      "path": "sections/SECTION_NAME/",
+      "level": 1,
+      "parent": null,
+      "children": [
+        "REPORT_ID:SECTION_NAME:SUBSECTION"
+      ],
+      "files": {
+        "full": "sections/SECTION_NAME/_FULL.md",
+        "overview": "sections/SECTION_NAME/_OVERVIEW.md"
+      },
+      "word_count": 0,
+      "confidence": "high|medium|low",
+      "last_updated": "2025-10-02T10:00:00Z"
+    },
+    {
+      "key": "REPORT_ID:SECTION_NAME:SUBSECTION",
+      "title": "Subsection Title",
+      "path": "sections/SECTION_NAME/SUBSECTION.md",
+      "level": 2,
+      "parent": "REPORT_ID:SECTION_NAME",
+      "children": [],
+      "files": {
+        "full": "sections/SECTION_NAME/SUBSECTION.md"
+      },
+      "word_count": 0,
+      "confidence": "high|medium|low",
+      "last_updated": "2025-10-02T10:00:00Z"
+    }
+  ],
+
+  "statistics": {
+    "total_sections": 0,
+    "total_words": 0,
+    "abstraction_levels": 0,
+    "max_depth": 0
+  }
+}
