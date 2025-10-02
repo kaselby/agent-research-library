@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { createSdkMcpServer, tool } from '@modelcontextprotocol/sdk';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
@@ -90,92 +91,153 @@ async function getGlobalIndex() {
   }
 }
 
-/**
- * ReportRegistryTool - Check if a research report exists
- */
-const reportRegistryTool = tool(
-  'check_report_exists',
-  'Check if a research report exists for a given topic. Returns the report path if found, or suggests creating one if not found. Uses centralized storage in ~/.claude/agent_research_library/',
-  {
-    topic: z.string().describe('The topic or library name to search for (e.g., "acme_api", "authentication_system")'),
-    working_directory: z.string().optional().describe('The current working directory (defaults to process.cwd())')
-  },
-  async (args) => {
-    const workingDir = args.working_directory || process.cwd();
-    const topicNormalized = args.topic.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+// ============================================================================
+// DISABLED TOOL: check_report_exists
+// ============================================================================
+// This tool is disabled in favor of the research-report-finder agent, which
+// provides intelligent fuzzy search with synonyms. The code is preserved here
+// for reference in case we want to re-enable it in the future.
+//
+// To re-enable:
+// 1. Update to new SDK API (see registerTool pattern below)
+// 2. Register with: server.registerTool('check_report_exists', ...)
+// ============================================================================
+/*
+async function checkReportExists(args) {
+  const workingDir = args.working_directory || process.cwd();
+  const topicNormalized = args.topic.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 
-    // Get project ID for this working directory
-    const projectId = await getProjectId(workingDir);
-    const projectName = await getProjectName(workingDir);
+  // Get project ID for this working directory
+  const projectId = await getProjectId(workingDir);
+  const projectName = await getProjectName(workingDir);
 
-    // Try project-level first
-    const projectIndex = await getProjectIndex(projectId);
-    if (projectIndex && projectIndex.reports) {
-      const found = projectIndex.reports.find(r =>
-        r.topic_normalized === topicNormalized ||
-        r.topic.toLowerCase() === args.topic.toLowerCase()
-      );
+  // Try project-level first
+  const projectIndex = await getProjectIndex(projectId);
+  if (projectIndex && projectIndex.reports) {
+    const found = projectIndex.reports.find(r =>
+      r.topic_normalized === topicNormalized ||
+      r.topic.toLowerCase() === args.topic.toLowerCase()
+    );
 
-      if (found) {
-        const reportPath = path.join(ARL_BASE, 'projects', projectId, found.directory);
-        return {
-          exists: true,
-          scope: 'project',
-          report_path: reportPath,
-          project_id: projectId,
-          project_name: projectName,
-          topic: found.topic,
-          created: found.created,
-          updated: found.updated,
-          message: `Report found in project "${projectName}": ${found.topic}`
-        };
-      }
+    if (found) {
+      const reportPath = path.join(ARL_BASE, 'projects', projectId, found.directory);
+      return {
+        exists: true,
+        scope: 'project',
+        report_path: reportPath,
+        project_id: projectId,
+        project_name: projectName,
+        topic: found.topic,
+        created: found.created,
+        updated: found.updated,
+        message: `Report found in project "${projectName}": ${found.topic}`
+      };
     }
-
-    // Try global
-    const globalIndex = await getGlobalIndex();
-    if (globalIndex && globalIndex.reports) {
-      const found = globalIndex.reports.find(r =>
-        r.topic_normalized === topicNormalized ||
-        r.topic.toLowerCase() === args.topic.toLowerCase()
-      );
-
-      if (found) {
-        const globalPath = path.join(ARL_BASE, '_global', found.directory);
-        return {
-          exists: true,
-          scope: 'global',
-          report_path: globalPath,
-          topic: found.topic,
-          created: found.created,
-          updated: found.updated,
-          message: `Report found (global): ${found.topic}`
-        };
-      }
-    }
-
-    // Not found
-    return {
-      exists: false,
-      topic: args.topic,
-      project_id: projectId,
-      project_name: projectName,
-      message: `No report found for "${args.topic}". You can create one using the report-creator subagent. It will be stored in ~/.claude/agent_research_library/projects/${projectId}/`
-    };
   }
-);
+
+  // Try global
+  const globalIndex = await getGlobalIndex();
+  if (globalIndex && globalIndex.reports) {
+    const found = globalIndex.reports.find(r =>
+      r.topic_normalized === topicNormalized ||
+      r.topic.toLowerCase() === args.topic.toLowerCase()
+    );
+
+    if (found) {
+      const globalPath = path.join(ARL_BASE, '_global', found.directory);
+      return {
+        exists: true,
+        scope: 'global',
+        report_path: globalPath,
+        topic: found.topic,
+        created: found.created,
+        updated: found.updated,
+        message: `Report found (global): ${found.topic}`
+      };
+    }
+  }
+
+  // Not found
+  return {
+    exists: false,
+    topic: args.topic,
+    project_id: projectId,
+    project_name: projectName,
+    message: `No report found for "${args.topic}". You can create one using the report-creator subagent. It will be stored in ~/.claude/agent_research_library/projects/${projectId}/`
+  };
+}
+*/
+
+// Create the MCP server
+const server = new McpServer({
+  name: 'research-report-tools',
+  version: '1.0.0',
+});
+
+/**
+ * Helper: Count words in text
+ */
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+/**
+ * Helper: Validate section key format (REPORT_ID:L1:L2:L3)
+ */
+function validateSectionKey(key, reportId) {
+  const parts = key.split(':');
+
+  // Must start with report ID
+  if (parts[0] !== reportId) {
+    return `Section key "${key}" must start with report ID "${reportId}"`;
+  }
+
+  // Must have 2-4 parts (REPORT_ID + 1-3 levels)
+  if (parts.length < 2 || parts.length > 4) {
+    return `Section key "${key}" must have 2-4 parts (REPORT_ID:L1[:L2[:L3]])`;
+  }
+
+  // Each part must be UPPERCASE_WITH_UNDERSCORES
+  for (let i = 1; i < parts.length; i++) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(parts[i])) {
+      return `Section key part "${parts[i]}" must use UPPERCASE_WITH_UNDERSCORES format`;
+    }
+  }
+
+  return null; // Valid
+}
+
+/**
+ * Helper: Extract cross-references from markdown content
+ */
+function extractCrossReferences(content) {
+  const regex = /\[([A-Z][A-Z0-9_:]+)\]/g;
+  const refs = [];
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    // Only capture if it looks like a section key (has at least one colon)
+    if (match[1].includes(':')) {
+      refs.push(match[1]);
+    }
+  }
+
+  return [...new Set(refs)]; // Unique refs
+}
 
 /**
  * ReportLinterTool - Validate report structure
  */
-const reportLinterTool = tool(
+server.registerTool(
   'lint_report',
-  'Validate the structure and formatting of a research report. Checks for required files, proper naming conventions, and metadata correctness.',
   {
-    report_path: z.string().describe('Absolute path to the report directory to validate')
+    description: 'Validate the structure and formatting of a research report. Checks for required files, proper naming conventions, metadata correctness, section keys, cross-references, and word counts.',
+    inputSchema: {
+      report_path: z.string().describe('Absolute path to the report directory to validate')
+    }
   },
-  async (args) => {
-    const reportPath = args.report_path;
+  async ({ report_path }) => {
+    const reportPath = report_path;
     const errors = [];
     const warnings = [];
     const fixes = [];
@@ -185,15 +247,21 @@ const reportLinterTool = tool(
       await fs.access(reportPath);
     } catch {
       return {
-        valid: false,
-        errors: [`Report directory not found: ${reportPath}`],
-        warnings: [],
-        fixes: []
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            valid: false,
+            errors: [`Report directory not found: ${reportPath}`],
+            warnings: [],
+            fixes: []
+          }, null, 2)
+        }]
       };
     }
 
     // Check for metadata.json
     let metadata;
+    let reportId;
     try {
       const metadataPath = path.join(reportPath, 'metadata.json');
       const metadataContent = await fs.readFile(metadataPath, 'utf-8');
@@ -204,13 +272,59 @@ const reportLinterTool = tool(
       if (!metadata.topic_normalized) errors.push('metadata.json missing "topic_normalized" field');
       if (!metadata.created) errors.push('metadata.json missing "created" field');
       if (!metadata.scope) errors.push('metadata.json missing "scope" field');
+      if (!metadata.id) {
+        errors.push('metadata.json missing "id" field (report ID)');
+      } else {
+        reportId = metadata.id;
+      }
+
+      // Validate sections array exists
+      if (!metadata.sections || !Array.isArray(metadata.sections)) {
+        errors.push('metadata.json missing or invalid "sections" array');
+      }
 
     } catch (error) {
       errors.push('metadata.json not found or invalid JSON');
-      return { valid: false, errors, warnings, fixes };
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({ valid: false, errors, warnings, fixes }, null, 2)
+        }]
+      };
+    }
+
+    // Collect all valid section keys from metadata
+    const metadataSectionKeys = new Set();
+    const sectionFileMap = new Map(); // key -> file path
+
+    if (metadata.sections) {
+      for (const section of metadata.sections) {
+        if (section.key) {
+          metadataSectionKeys.add(section.key);
+
+          // NEW: Validate section key format
+          if (reportId) {
+            const keyError = validateSectionKey(section.key, reportId);
+            if (keyError) {
+              errors.push(keyError);
+            }
+          }
+
+          // Store file mappings for validation
+          if (section.files) {
+            if (section.files.full) {
+              sectionFileMap.set(section.key, section.files.full);
+            }
+            if (section.files.overview) {
+              sectionFileMap.set(`${section.key}:overview`, section.files.overview);
+            }
+          }
+        }
+      }
     }
 
     // Check for _OVERVIEW.md
+    let overviewWordCount = 0;
     try {
       const overviewPath = path.join(reportPath, '_OVERVIEW.md');
       const overviewContent = await fs.readFile(overviewPath, 'utf-8');
@@ -224,9 +338,23 @@ const reportLinterTool = tool(
         warnings.push('_OVERVIEW.md seems too short (< 100 characters)');
       }
 
+      // NEW: Word count validation for overview (300-700 words)
+      overviewWordCount = countWords(overviewContent);
+      if (overviewWordCount < 300) {
+        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (recommended: 300-700)`);
+      } else if (overviewWordCount > 700) {
+        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (recommended: 300-700, max: 1000)`);
+      }
+
     } catch {
       errors.push('_OVERVIEW.md not found');
     }
+
+    // NEW: Collect all cross-references from all markdown files
+    const allCrossReferences = new Set();
+
+    // NEW: Track actual section files found on disk
+    const actualSectionFiles = new Set();
 
     // Check for sections directory
     try {
@@ -253,16 +381,104 @@ const reportLinterTool = tool(
 
           if (!sectionFiles.includes('_OVERVIEW.md')) {
             errors.push(`Section "${section}" missing _OVERVIEW.md`);
+          } else {
+            actualSectionFiles.add(`sections/${section}/_OVERVIEW.md`);
+
+            // NEW: Validate _OVERVIEW.md word count (300-600 words)
+            try {
+              const content = await fs.readFile(path.join(sectionPath, '_OVERVIEW.md'), 'utf-8');
+              const wordCount = countWords(content);
+              if (wordCount < 300) {
+                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (recommended: 300-600)`);
+              } else if (wordCount > 600) {
+                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (recommended: 300-600, max: 800)`);
+              }
+
+              // NEW: Extract cross-references
+              const refs = extractCrossReferences(content);
+              refs.forEach(ref => allCrossReferences.add(ref));
+            } catch {}
           }
 
           if (!sectionFiles.includes('_FULL.md')) {
             errors.push(`Section "${section}" missing _FULL.md`);
+          } else {
+            actualSectionFiles.add(`sections/${section}/_FULL.md`);
+
+            // NEW: Validate _FULL.md word count (2000-5000 words)
+            try {
+              const content = await fs.readFile(path.join(sectionPath, '_FULL.md'), 'utf-8');
+              const wordCount = countWords(content);
+              if (wordCount < 2000) {
+                warnings.push(`Section "${section}"/_FULL.md has ${wordCount} words (recommended: 2000-5000)`);
+              } else if (wordCount > 5000) {
+                warnings.push(`Section "${section}"/_FULL.md has ${wordCount} words (recommended: 2000-5000, max: 6000)`);
+              }
+
+              // NEW: Extract cross-references
+              const refs = extractCrossReferences(content);
+              refs.forEach(ref => allCrossReferences.add(ref));
+            } catch {}
+          }
+
+          // NEW: Check for L2 component files (should be 600-1200 words)
+          for (const file of sectionFiles) {
+            if (file.endsWith('.md') && !file.startsWith('_')) {
+              const filePath = path.join(sectionPath, file);
+              actualSectionFiles.add(`sections/${section}/${file}`);
+
+              try {
+                const content = await fs.readFile(filePath, 'utf-8');
+                const wordCount = countWords(content);
+                if (wordCount < 600) {
+                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (recommended: 600-1200)`);
+                } else if (wordCount > 1200) {
+                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (recommended: 600-1200, max: 1500)`);
+                }
+
+                // NEW: Extract cross-references
+                const refs = extractCrossReferences(content);
+                refs.forEach(ref => allCrossReferences.add(ref));
+              } catch {}
+            }
           }
         }
       }
 
     } catch {
       errors.push('sections/ directory not found');
+    }
+
+    // NEW: Validate cross-references
+    for (const ref of allCrossReferences) {
+      if (!metadataSectionKeys.has(ref)) {
+        errors.push(`Cross-reference [${ref}] points to non-existent section (not in metadata.json)`);
+      }
+    }
+
+    // NEW: Check for orphaned sections (files exist but not in metadata)
+    for (const filePath of actualSectionFiles) {
+      let foundInMetadata = false;
+      for (const [key, metadataPath] of sectionFileMap) {
+        if (metadataPath === filePath) {
+          foundInMetadata = true;
+          break;
+        }
+      }
+
+      if (!foundInMetadata) {
+        warnings.push(`File "${filePath}" exists but is not registered in metadata.json sections`);
+      }
+    }
+
+    // NEW: Check for missing files (in metadata but not on disk)
+    for (const [key, filePath] of sectionFileMap) {
+      const fullPath = path.join(reportPath, filePath);
+      try {
+        await fs.access(fullPath);
+      } catch {
+        errors.push(`metadata.json references file "${filePath}" but it doesn't exist`);
+      }
     }
 
     // Generate auto-fixes if applicable
@@ -272,27 +488,35 @@ const reportLinterTool = tool(
 
     const valid = errors.length === 0;
 
-    return {
+    const result = {
       valid,
       errors,
       warnings,
       fixes,
+      statistics: {
+        overview_word_count: overviewWordCount,
+        metadata_sections: metadataSectionKeys.size,
+        actual_files: actualSectionFiles.size,
+        cross_references: allCrossReferences.size
+      },
       message: valid
         ? `Report structure is valid. ${warnings.length} warning(s).`
         : `Report structure has ${errors.length} error(s) and ${warnings.length} warning(s).`
     };
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify(result, null, 2)
+      }]
+    };
   }
 );
 
-// Create the MCP server
-const server = createSdkMcpServer({
-  name: 'research-report-tools',
-  version: '1.0.0',
-  // NOTE: check_report_exists tool is disabled - use research-report-finder agent instead
-  // The agent provides intelligent fuzzy search with synonyms, which is more user-friendly
-  // Code is kept here for reference but not registered
-  tools: [reportLinterTool]
-});
+// NOTE: check_report_exists tool is disabled - use research-report-finder agent instead
+// The agent provides intelligent fuzzy search with synonyms, which is more user-friendly
+// Code is kept above for reference but not registered
 
 // Start the server
-server.listen();
+const transport = new StdioServerTransport();
+await server.connect(transport);
