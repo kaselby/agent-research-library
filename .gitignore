@@ -19,3 +19,7 @@ __pycache__/
 # Test outputs
 test_reports/
 *.test.md
+
+# Node modules
+node_modules/
+package-lock.json

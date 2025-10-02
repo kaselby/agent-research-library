@@ -51,8 +51,9 @@ research-librarian navigates the report:
 
 ```
 Main Claude
-  ├─ ReportRegistryTool (checks if report exists)
-  ├─ ReportLinterTool (format validation)
+  ├─ MCP Tools:
+  │  ├─ check_report_exists (checks if report exists)
+  │  └─ lint_report (format validation)
   │
   └─ Subagents:
      ├─ report-creator (Sonnet) → Creates reports
@@ -68,9 +69,35 @@ Main Claude
 ./install.sh
 ```
 
-This copies files to `~/.claude/research_reports/`
+This copies files to `~/.claude/research_reports/` and installs MCP tools.
 
-### 2. Create Subagents
+### 2. Configure MCP Tools
+
+See `~/.claude/research_reports/mcp_tools/README.md` for full instructions.
+
+**Quick setup** (user-level, available in all projects):
+
+```bash
+claude mcp add research-report-tools -- node ~/.claude/research_reports/mcp_tools/index.js
+```
+
+Or manually add to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "research-report-tools": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["~/.claude/research_reports/mcp_tools/index.js"]
+    }
+  }
+}
+```
+
+Restart Claude Code after configuration.
+
+### 3. Create Subagents
 
 Manually create three subagents in Claude Code:
 
@@ -92,7 +119,7 @@ Manually create three subagents in Claude Code:
 - **Description**: Copy from `~/.claude/research_reports/agents/research-librarian.md`
 - **Tools**: Read, Glob, Grep
 
-### 3. Test
+### 4. Test
 
 ```
 > "Create a research report on [some library in your project]"
