@@ -172,16 +172,16 @@ Reports are stored per-project in `.claude_research/` (not version controlled).
 
 ### Querying a Report
 1. User asks question about documented library
-2. Main Claude checks if report exists
-3. research-librarian reads only relevant sections
-4. Returns summary + section recommendations
+2. Main Claude launches research-report-finder agent (Haiku)
+3. If report found → launch research-librarian to read relevant sections
+4. Librarian returns summary + section recommendations
 5. Main Claude answers user with efficient context
 
 ## Storage
 
-- **Per-project**: `{project}/.claude_research/` (primary, gitignored)
-- **Global patterns**: `~/.claude/research_reports/_global/` (optional)
-- **Backups**: `~/.claude/research_reports/projects/` (optional)
+- **Centralized**: `~/.claude/agent_research_library/`
+- **Project reports**: `~/.claude/agent_research_library/projects/{project_id}/`
+- **Global patterns**: `~/.claude/agent_research_library/_global/`
 
 ## Updating
 

@@ -16,14 +16,14 @@ When you need complex technical information about a topic, **check if a research
 
 **How to query reports:**
 
-1. Launch `report-finder` agent (Haiku) with the user's question/topic
+1. Launch `research-report-finder` agent (Haiku) with the user's question/topic
 2. If report found → Launch `research-librarian` agent with the report path and query
 3. If no report exists → Use traditional codebase search or documentation
 
 **Example:**
 ```
 User: "How does authentication work in huggingface?"
-→ Launch report-finder agent: "Find report for: authentication in huggingface"
+→ Launch research-report-finder agent: "Find report for: authentication in huggingface"
 → If found: Launch research-librarian agent with:
    - Report path from finder
    - Query: "Search for authentication implementation details"
@@ -54,8 +54,8 @@ User: "How does authentication work in huggingface?"
 **If there's any ambiguity**, ask the user for confirmation before creating a report. Report creation is expensive and should never happen automatically.
 
 **When explicitly requested**, read the detailed workflow in:
-`~/.claude/research_reports/REPORT_CREATION.md`
+`~/.claude/agent_research_library/REPORT_CREATION.md`
 
 ---
 
-_Note: Reports are stored in `.claude_research/` (project-specific) or `~/.claude/research_reports/_global/` (reusable patterns)_
+_Note: Reports are stored in `~/.claude/agent_research_library/projects/{project_id}/` (project-specific) or `~/.claude/agent_research_library/_global/` (reusable patterns)_
