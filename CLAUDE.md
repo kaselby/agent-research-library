@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-The Claude Research Report System is a hierarchical knowledge management system that enables context-efficient research through intelligent report generation and querying. It uses three specialized Claude Code subagents to create, validate, and query comprehensive technical documentation.
+The Agent Research Library is a hierarchical knowledge management system that enables context-efficient research through intelligent report generation and querying. It uses specialized AI agents to create, validate, and query comprehensive technical documentation.
+
+Built for Claude Code, designed to be extensible to other AI agent systems.
 
 ## System Architecture
 

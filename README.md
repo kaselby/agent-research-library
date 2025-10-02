@@ -1,6 +1,8 @@
-# Claude Research Report System
+# Agent Research Library
 
-A hierarchical knowledge management system for Claude Code that enables context-efficient research through intelligent report generation and querying.
+A hierarchical knowledge management system for AI agents that enables context-efficient research through intelligent report generation and querying.
+
+Built for Claude Code, designed to work with any AI agent system.
 
 ## Overview
 
@@ -17,8 +19,8 @@ Create comprehensive, validated research reports on complex codebases and query 
 ## Quick Install
 
 ```bash
-git clone https://github.com/yourusername/claude-research-system.git
-cd claude-research-system
+git clone https://github.com/kaselby/agent-research-library.git
+cd agent-research-library
 ./install.sh
 ```
 
@@ -184,7 +186,7 @@ Reports are stored per-project in `.claude_research/` (not version controlled).
 ## Updating
 
 ```bash
-cd ~/Git/claude-research-system
+cd ~/Git/agent-research-library
 git pull
 ./install.sh  # Re-install with updates
 ```
@@ -223,4 +225,6 @@ MIT
 
 ## Credits
 
-Designed for context-efficient knowledge management with Claude Code.
+Designed for context-efficient knowledge management with AI agents.
+
+Built for Claude Code, extensible to other agent frameworks.

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Claude Research Report System - Installation Script
+# Agent Research Library - Installation Script
 # Usage: ./install.sh
 
 set -e  # Exit on error
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Claude Research Report System - Installer"
+echo "  Agent Research Library - Installer"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
@@ -134,20 +134,20 @@ CLAUDE_MD="$CLAUDE_DIR/CLAUDE.md"
 
 if [ -f "$CLAUDE_MD" ]; then
     # Check if already added
-    if grep -q "Claude Research Report System" "$CLAUDE_MD" 2>/dev/null; then
-        echo "✓ Research Report System already configured in CLAUDE.md"
+    if grep -q "Agent Research Library" "$CLAUDE_MD" 2>/dev/null; then
+        echo "✓ Agent Research Library already configured in CLAUDE.md"
     else
         # File exists, offer to append
         echo ""
         echo "Found existing $CLAUDE_MD"
-        read -p "Add Research Report System instructions to it? [Y/n] " -n 1 -r
+        read -p "Add Agent Research Library instructions to it? [Y/n] " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
             echo "" >> "$CLAUDE_MD"
             echo "---" >> "$CLAUDE_MD"
             echo "" >> "$CLAUDE_MD"
             cat "$SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md" >> "$CLAUDE_MD"
-            echo "✓ Added Research Report System instructions to CLAUDE.md"
+            echo "✓ Added Agent Research Library instructions to CLAUDE.md"
         else
             echo "⚠️  Skipped CLAUDE.md update. You can manually add:"
             echo "   $SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md"
@@ -156,7 +156,7 @@ if [ -f "$CLAUDE_MD" ]; then
 else
     # No CLAUDE.md exists, create it
     cat "$SCRIPT_DIR/orchestration/GLOBAL_INSTRUCTIONS.md" > "$CLAUDE_MD"
-    echo "✓ Created $CLAUDE_MD with Research Report System instructions"
+    echo "✓ Created $CLAUDE_MD with Agent Research Library instructions"
 fi
 
 echo ""

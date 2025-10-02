@@ -1,6 +1,8 @@
-# Claude Research Report System
+# Agent Research Library
 
 You have access to a research report system that creates and queries hierarchical technical documentation.
+
+This system is agent-agnostic and works with various AI agent frameworks.
 
 ## Querying Reports
 
@@ -35,12 +37,12 @@ User: "How does authentication work in huggingface?"
 
 ## Creating Reports
 
-**CRITICAL**: Only create research reports when the user **explicitly mentions "Research Report System"** or "research system" in their request.
+**CRITICAL**: Only create research reports when the user **explicitly mentions "research report"** or "research system" in their request.
 
 **When to create reports:**
-- ✓ User says: "Create a research report on [topic] using the Research Report System"
-- ✓ User says: "Generate a research report for [library] with the research system"
-- ✓ User says: "Build a research report about [system]" → Confirm first: "Should I use the Research Report System for this?"
+- ✓ User says: "Create a research report on [topic]"
+- ✓ User says: "Generate a research report for [library]"
+- ✓ User says: "Build a research report about [system]"
 
 **When NOT to create reports:**
 - ✗ User says: "Research the authentication system for me" → Query existing reports or search codebase

@@ -1,7 +1,7 @@
 {
-  "name": "claude-research-report-tools",
+  "name": "agent-research-library-tools",
   "version": "1.0.0",
-  "description": "MCP tools for Claude Research Report System",
+  "description": "MCP tools for Agent Research Library",
   "type": "module",
   "main": "index.js",
   "dependencies": {
