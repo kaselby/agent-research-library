@@ -1,4 +1,9 @@
-# report-validator Agent (Opus)
+---
+name: report-validator
+description: Validates research reports for conceptual accuracy and architectural understanding using deep source code verification
+tools: Read, Glob, Grep
+model: opus
+---
 
 **IMPORTANT: This agent must use Opus model, not Sonnet**
 
