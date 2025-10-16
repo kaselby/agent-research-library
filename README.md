@@ -115,16 +115,17 @@ ACME_API/
 ├── metadata.json
 ├── _OVERVIEW.md                    # 500 word summary
 └── sections/
+    ├── INSTALLATION.md            # Simple standalone topic (1200 words)
+    │
     ├── CORE_ARCHITECTURE/
-    │   ├── _FULL.md               # Complete (3000 words)
-    │   ├── _OVERVIEW.md           # Summary (400 words)
+    │   ├── _OVERVIEW.md           # Section navigation (400 words)
+    │   ├── _CONTENT.md            # Core concepts (2000 words)
     │   ├── CLIENT_MODEL.md        # Component (800 words)
     │   └── REQUEST_HANDLER.md
     │
     └── AUTHENTICATION/
-        ├── _FULL.md
         ├── _OVERVIEW.md
-        ├── OAUTH.md               # Component (800 words)
+        ├── OAUTH.md               # Component (1200 words)
         └── API_KEYS.md
 ```
 
@@ -152,12 +153,7 @@ Opus dynamically selects which sections to validate based on criticality.
 
 ## Project Setup
 
-Add to your project's `.gitignore`:
-```
-.claude_research/
-```
-
-Reports are stored per-project in `.claude_research/` (not version controlled).
+No project-specific setup required. All reports are stored centrally in `~/.claude/agent_research_library/`.
 
 ## Workflow
 
@@ -202,7 +198,7 @@ Existing reports remain compatible (schema is versioned).
 → Check report-validator agent is configured for Opus model
 
 **Report not found**
-→ Check `.claude_research/index.json` in your project directory
+→ Check `~/.claude/agent_research_library/projects/{project_slug}/index.json` or `~/.claude/agent_research_library/_global/index.json`
 
 ## Requirements
 
@@ -214,9 +210,12 @@ Existing reports remain compatible (schema is versioned).
 ## Uninstall
 
 ```bash
-rm -rf ~/.claude/research_reports/
-# Delete the three subagents from Claude Code
-# Optionally delete .claude_research/ from projects
+rm -rf ~/.claude/agent_research_library/
+# Delete the subagents from ~/.claude/agents/
+rm ~/.claude/agents/report-creator.md
+rm ~/.claude/agents/research-report-finder.md
+rm ~/.claude/agents/research-librarian.md
+rm ~/.claude/agents/report-validator.md
 ```
 
 ## License

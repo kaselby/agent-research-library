@@ -14,7 +14,7 @@ The system consists of three main components:
 
 1. **MCP Tools** (Node.js): Provide report registry and linting capabilities
 2. **Subagents** (Claude Code): Three specialized agents for creation, validation, and querying
-3. **Storage System**: Local `.claude_research/` directories and global `~/.claude/research_reports/`
+3. **Storage System**: `~/.claude/agent_research_library/` for all reports (both project-specific and global)
 
 ### Key Components
 
@@ -71,10 +71,11 @@ REPORT_ID/
 ├── metadata.json                 # Report metadata, section registry
 ├── _OVERVIEW.md                  # 500-word report summary
 └── sections/
-    ├── L1_SECTION/               # Major subsystem
-    │   ├── _FULL.md              # 2000-4000 words
-    │   ├── _OVERVIEW.md          # 300-500 word summary
-    │   ├── L2_COMPONENT.md       # 600-1000 words
+    ├── SIMPLE_TOPIC.md           # Standalone topic (1000-2000 words)
+    ├── L1_SECTION/               # Complex topic with children
+    │   ├── _OVERVIEW.md          # Section navigation (300-500 words)
+    │   ├── _CONTENT.md           # Core concepts (1500-2500 words, optional)
+    │   ├── L2_COMPONENT.md       # Subsection (800-1500 words)
     │   └── L2_COMPONENT2.md
     └── L1_SECTION2/
         └── ...
@@ -91,9 +92,9 @@ Examples:
 
 ## Storage Locations
 
-- **Project reports**: `{project}/.claude_research/` (add to `.gitignore`)
-- **Global patterns**: `~/.claude/research_reports/_global/`
-- **Backups**: `~/.claude/research_reports/projects/{project_slug}/`
+All reports are stored in `~/.claude/agent_research_library/`:
+- **Project reports**: `~/.claude/agent_research_library/projects/{project_slug}/`
+- **Global patterns**: `~/.claude/agent_research_library/_global/`
 
 ## Common Workflows
 
@@ -146,7 +147,7 @@ npm install
 node index.js
 
 # Lint a report
-node index.js lint /path/to/.claude_research/REPORT_ID/
+node index.js lint ~/.claude/agent_research_library/projects/{project_slug}/REPORT_ID/
 ```
 
 ### File Operations
@@ -182,9 +183,8 @@ cat ~/.claude/research_reports/RESEARCH_REPORT_SYSTEM.md
 
 - `report-validator` can use **Opus** (recommended, more accurate) or **Sonnet** (faster, users without Opus access)
 - Validator model choice is made during `./install.sh` - creates appropriate agent file
-- Add `.claude_research/` to project `.gitignore`
-- Reports are project-scoped by default (stored in project directory)
-- Global reports (patterns, frameworks) go in `~/.claude/research_reports/_global/`
+- Reports are stored in `~/.claude/agent_research_library/` (project-specific or global scope)
+- Global reports (patterns, frameworks) go in `~/.claude/agent_research_library/_global/`
 - Section keys are stable - don't change after creation
 - Structural validation is automatic (report-creator self-lints before returning)
 
@@ -208,9 +208,9 @@ Reports can reference other sections:
 ## Troubleshooting
 
 **Report not found after creation:**
-- Check `.claude_research/index.json` exists
+- Check `~/.claude/agent_research_library/projects/{project_slug}/index.json` exists
 - Verify report ID in index
-- Check backup: `~/.claude/research_reports/projects/`
+- Check `~/.claude/agent_research_library/_global/index.json` for global reports
 
 **Want to change validator model:**
 - Re-run `./install.sh` and choose different model when prompted
@@ -241,7 +241,7 @@ Reports can reference other sections:
 
 ### For Report Creation
 - Include `file:line` references (e.g., `auth.py:145-203`)
-- Target word counts: Overview (300-500), L2 (600-1000), L1 Full (2000-4000)
+- Typical sizes: Overviews are brief navigation aids, subsections are focused topics, content files cover core concepts
 - Maximum depth: 3 levels (rarely needed)
 - Cross-reference related sections with `[SECTION_KEY]`
 

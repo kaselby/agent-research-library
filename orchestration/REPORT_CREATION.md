@@ -193,9 +193,8 @@ You:
 
 Reports are automatically stored by the agents:
 
-- **Project reports**: `{project}/.claude_research/REPORT_ID/`
-- **Global patterns**: `~/.claude/research_reports/_global/REPORT_ID/`
-- **Backups**: `~/.claude/research_reports/projects/{project_slug}/`
+- **Project reports**: `~/.claude/agent_research_library/projects/{project_slug}/REPORT_ID/`
+- **Global patterns**: `~/.claude/agent_research_library/_global/REPORT_ID/`
 
 You don't need to manage storage - the agents handle this.
 

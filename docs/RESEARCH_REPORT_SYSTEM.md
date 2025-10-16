@@ -27,10 +27,12 @@ The Research Report System is a hierarchical knowledge management system designe
 ### Core Principles
 
 1. **Context Efficiency**: Minimize tokens while maximizing information value
-2. **Hierarchical Organization**: Multiple levels of detail for progressive disclosure
-3. **Knowledge Isolation**: Project-specific reports stay contained
-4. **Persistent Knowledge**: Reports survive across sessions
-5. **Explicit Creation**: Reports created only on explicit user request (expensive operation)
+2. **Flexible Hierarchy**: Natural structure with mixed depths (1-3 levels) based on complexity
+3. **True Modularity**: Every file is independently loadable with clear boundaries
+4. **Knowledge Isolation**: Project-specific reports stay contained
+5. **Persistent Knowledge**: Reports survive across sessions
+6. **Explicit Creation**: Reports created only on explicit user request (expensive operation)
+7. **No Forced Structure**: Don't create artificial subdivisions where they don't exist
 
 ---
 
@@ -116,10 +118,10 @@ Main Claude: Load recommended sections → Answer user
 ├── RESEARCH_REPORT_SYSTEM.md          # This documentation
 ├── templates/                          # Report templates
 │   ├── report_structure.md
-│   ├── section_full.md
+│   ├── section_content.md
 │   ├── section_overview.md
 │   ├── index_template.json
-│   └── metadata_template.json
+│   └── metadata_template.json       # v2.0 flexible schema
 │
 ├── _global/                            # User-level reports
 │   ├── index.json                      # Global report catalog
@@ -143,7 +145,7 @@ Main Claude: Load recommended sections → Answer user
         └── TASKFLOW/
 ```
 
-### Project Structure
+### Project Structure (v2.0 - Flexible Hierarchy)
 
 ```
 /path/to/project/.claude_research/
@@ -151,29 +153,26 @@ Main Claude: Load recommended sections → Answer user
 ├── metadata.json                       # Project-level metadata
 │
 ├── ACME_API/                           # Report on acme_api library
-│   ├── metadata.json                   # Report-specific metadata
+│   ├── metadata.json                   # Report-specific metadata (schema v2.0)
 │   ├── _OVERVIEW.md                    # High-level TOC and summary
 │   │
-│   └── sections/                       # All report sections
+│   └── sections/                       # All report sections (mixed depth)
 │       │
-│       ├── CORE_ARCHITECTURE/          # L1 section
-│       │   ├── _FULL.md                # Complete section (3000 words)
-│       │   ├── _OVERVIEW.md            # Section summary (500 words)
-│       │   ├── CLIENT_MODEL.md         # L2 subsection (800 words)
-│       │   ├── REQUEST_HANDLER.md      # L2 subsection (800 words)
-│       │   └── STATE_MANAGEMENT.md     # L2 subsection (600 words)
+│       ├── INSTALLATION.md             # Simple standalone topic (1200 words)
 │       │
-│       ├── AUTHENTICATION/             # L1 section
-│       │   ├── _FULL.md                # Complete section (2500 words)
+│       ├── CORE_ARCHITECTURE/          # Complex topic with children
+│       │   ├── _OVERVIEW.md            # Section navigation (300 words)
+│       │   ├── _CONTENT.md             # Core concepts (2000 words)
+│       │   ├── CLIENT_MODEL.md         # Subsection (800 words)
+│       │   ├── REQUEST_HANDLER.md      # Subsection (900 words)
+│       │   └── STATE_MANAGEMENT.md     # Subsection (600 words)
+│       │
+│       ├── AUTHENTICATION/             # Moderate complexity
 │       │   ├── _OVERVIEW.md            # Section summary (400 words)
-│       │   ├── OAUTH.md                # L2 subsection (800 words)
-│       │   ├── API_KEYS.md             # L2 subsection (800 words)
-│       │   └── TOKEN_REFRESH.md        # L2 subsection (500 words)
+│       │   ├── OAUTH.md                # OAuth implementation (1200 words)
+│       │   └── API_KEYS.md             # API key auth (800 words)
 │       │
-│       └── API_ENDPOINTS/
-│           ├── _FULL.md
-│           ├── _OVERVIEW.md
-│           └── ENDPOINT_VALIDATION.md
+│       └── DEPLOYMENT.md               # Simple standalone topic (1000 words)
 │
 └── TASKFLOW_INTEGRATION/               # Another report
     ├── metadata.json
@@ -308,75 +307,96 @@ Located at report root level. Catalogs all reports in scope.
 
 ---
 
-## Abstraction Levels
+## Abstraction Levels (v2.0 - Flexible Hierarchy)
 
 ### Level Philosophy
 
-Reports use **hierarchical abstraction** with 1-3 levels:
+Reports use **flexible hierarchical abstraction** with 1-3 levels based on natural complexity:
 
 - **Level 0**: Report root (ACME_API) - entry point
-- **Level 1**: Major subsystem (CORE_ARCHITECTURE, AUTHENTICATION)
-- **Level 2**: Specific component (OAUTH, REQUEST_HANDLER)
-- **Level 3**: Rare - only for very complex subsections
+- **Level 1**: Top-level topics (can be files OR directories)
+- **Level 2**: Subsections (when Level 1 needs decomposition)
+- **Level 3**: Rare - only when absolutely necessary for clarity
 
-### File Naming Convention
+**Key Principle**: Different branches can have different depths. A simple topic stays flat while complex topics get deeper structure.
 
-| File Name | Purpose | Typical Size |
-|-----------|---------|--------------|
-| `_OVERVIEW.md` | Section summary with roadmap | 300-500 words |
-| `_FULL.md` | Complete section content | 2000-4000 words |
-| `{COMPONENT}.md` | Specific component/implementation | 600-1000 words |
+### File Types and Naming
 
-### Structure Patterns
+| File Name | Purpose | Typical Size | When to Use |
+|-----------|---------|--------------|-------------|
+| `_OVERVIEW.md` | Navigation and summary | 200-400 words (sections), 300-500 (report) | Every directory |
+| `_CONTENT.md` | Main section content | 1500-2500 words | Directories with children (optional) |
+| `{TOPIC}.md` | Standalone topic | 800-1500 words (2000 max for L1) | Simple topics or leaf nodes |
 
-#### Simple Topic (Minimal Hierarchy)
+**Note**: `_FULL.md` has been deprecated in v2.0 - use `_CONTENT.md` for section-specific content only.
+
+### Structure Patterns (v2.0)
+
+#### Flat Report (all standalone files)
 ```
-SIMPLE_TOPIC/
-├── _OVERVIEW.md         # 400 words - Complete overview
-└── _FULL.md             # 1500 words - All details
-```
-
-#### Moderate Topic (2 Levels)
-```
-MODERATE_TOPIC/
-├── _OVERVIEW.md         # 500 words - "We have 3 main areas..."
-├── _FULL.md             # 3000 words - Everything combined
-├── COMPONENT_A.md       # 900 words - First major component
-├── COMPONENT_B.md       # 1100 words - Second major component
-└── COMPONENT_C.md       # 1000 words - Third major component
+SIMPLE_LIBRARY/
+├── _OVERVIEW.md                    # 400 words - Report overview
+└── sections/
+    ├── INSTALLATION.md             # 1000 words - Standalone topic
+    ├── CORE_CONCEPTS.md            # 1500 words - Standalone topic
+    └── API_REFERENCE.md            # 1800 words - Standalone topic
 ```
 
-#### Complex Topic (3 Levels)
+#### Mixed-Depth Report (natural hierarchy)
 ```
-COMPLEX_TOPIC/
-├── _OVERVIEW.md                    # 400 words - High-level map
-├── _FULL.md                        # 5000 words - Complete content
-│
-├── SUBSYSTEM_A/                    # L2 directory
-│   ├── _FULL.md                    # 2000 words - All of subsystem A
-│   ├── _OVERVIEW.md                # 300 words - Subsystem A map
-│   ├── IMPLEMENTATION_X.md         # 700 words - Specific implementation
-│   └── IMPLEMENTATION_Y.md         # 600 words - Another implementation
-│
-└── SUBSYSTEM_B/                    # L2 directory
-    ├── _FULL.md                    # 1800 words
-    ├── _OVERVIEW.md                # 250 words
-    └── COMPONENT_Z.md              # 800 words
+WEB_FRAMEWORK/
+├── _OVERVIEW.md                    # 500 words - Framework overview
+└── sections/
+    ├── GETTING_STARTED.md          # 1200 words - Simple standalone
+    │
+    ├── CORE_SYSTEM/                # Complex topic needs structure
+    │   ├── _OVERVIEW.md            # 300 words - Navigation
+    │   ├── _CONTENT.md             # 2000 words - Core concepts
+    │   ├── ROUTING.md              # 900 words - Subsection
+    │   └── MIDDLEWARE.md           # 800 words - Subsection
+    │
+    └── DEPLOYMENT.md               # 1000 words - Simple standalone
 ```
 
-### Decision Criteria for Depth
+#### Complex Report (3 levels, only where needed)
+```
+ENTERPRISE_PLATFORM/
+├── _OVERVIEW.md                    # 600 words - Platform overview
+└── sections/
+    ├── ARCHITECTURE.md             # 1800 words - Top-level standalone
+    │
+    ├── MICROSERVICES/
+    │   ├── _OVERVIEW.md            # 400 words
+    │   ├── _CONTENT.md             # 2200 words - Service patterns
+    │   │
+    │   ├── API_GATEWAY/            # Needs deeper structure
+    │   │   ├── _OVERVIEW.md        # 250 words
+    │   │   ├── ROUTING.md          # 800 words
+    │   │   └── AUTH.md             # 700 words
+    │   │
+    │   └── SERVICE_MESH.md         # 1400 words - Standalone
+    │
+    └── OBSERVABILITY/
+        ├── _OVERVIEW.md            # 350 words
+        ├── METRICS.md              # 1200 words
+        └── TRACING.md              # 1100 words
+```
 
-| Scenario | Recommended Depth | Example |
-|----------|-------------------|---------|
-| Single focused concept | 1 level (OVERVIEW + FULL) | Configuration format |
-| Multiple implementations of same interface | 2 levels (L1 + variants) | LLM providers (Groq, OpenAI) |
-| Complex subsystem with sub-components | 2-3 levels | Message routing system |
-| Very large system (>5000 words) | 3 levels | Complete framework analysis |
+### Decision Criteria for Structure
 
-**Rule of thumb**:
-- Each leaf section: 600-1000 words
-- If section exceeds 1500 words AND has clear sub-topics → split to next level
-- Maximum depth: 3 levels (rarely needed)
+| Content Size | Structure | Example |
+|--------------|-----------|---------|
+| <1000 words | Single file | Configuration format → CONFIG.md |
+| 1000-2000 words | Single file OR split if natural divisions | Authentication → AUTH.md or AUTH/{OAUTH.md, JWT.md} |
+| 2000-3000 words | Directory with children | Core System → CORE/{_OVERVIEW.md, _CONTENT.md, ROUTING.md} |
+| >3000 words | Must split into directory | Large subsystem → Multiple files/subdirs |
+
+**Decision Rules**:
+- **Prefer flat structure** when possible
+- **Only add depth** when it genuinely improves clarity
+- **Mixed depths are normal** - one branch can be deep, another shallow
+- **_CONTENT.md is optional** - skip if section is fully decomposed into children
+- **Maximum depth**: 3 levels (use very sparingly)
 
 ---
 

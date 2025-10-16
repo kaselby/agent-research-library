@@ -159,12 +159,11 @@ This file is the index for the entire report. It MUST contain:
 Should be specified when agent is invoked. 
 
 **PROJECT SCOPE** (default): Specific to this codebase's architecture
-- Location: {git_root}/.claude_research/REPORT_ID/
-- Backup: ~/.claude/research_reports/projects/{project_slug}/REPORT_ID/
+- Location: ~/.claude/agent_research_library/projects/{project_slug}/REPORT_ID/
 - Example: "ACME_API:AUTHENTICATION" - specific to ACME's auth implementation
 
 **GLOBAL SCOPE**: Reusable patterns/frameworks applicable to any project
-- Location: ~/.claude/research_reports/_global/REPORT_ID/
+- Location: ~/.claude/agent_research_library/_global/REPORT_ID/
 - Example: "PYTHON_PATTERNS:ADAPTER" - general design pattern documentation
 - Example: "FASTAPI_BEST_PRACTICES" - framework usage patterns
 

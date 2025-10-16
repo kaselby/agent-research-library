@@ -1,15 +1,17 @@
-# {SECTION_KEY}
+# {SECTION_KEY} - Core Content
 
 **Version**: 1.0
 **Confidence**: High|Medium|Low
 **Last Updated**: YYYY-MM-DD
 **Parent Section**: [`PARENT_SECTION_KEY`] (if applicable)
 
+> **Note**: This _CONTENT.md file contains the core concepts and architecture for this section. Specific implementations and detailed subsections are in separate files within this directory.
+
 ## Overview
 
-[Comprehensive introduction to this section - 1-2 paragraphs]
+[Introduction to the core concepts of this section - 1-2 paragraphs]
 
-This section provides detailed technical analysis of [topic]. It covers [major areas], examines [key components], and documents [important patterns/implementations].
+This content covers the fundamental architecture and shared concepts that apply across all subsections. For specific implementations, see the individual component files in this directory.
 
 ## Table of Contents
 

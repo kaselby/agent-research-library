@@ -4,13 +4,13 @@
   "created": "2025-10-02T10:00:00Z",
   "updated": "2025-10-02T10:00:00Z",
   "version": "1.0",
-  "schema_version": "1.0",
-  "created_by_arl_version": "0.1.0",
-  "compatible_with": ["1.0", "1.1"],
+  "schema_version": "2.0",
+  "created_by_arl_version": "0.2.0",
+  "compatible_with": ["2.0"],
   "author": "report-creator",
   "scope": "project|global",
   "project_id": "a3f8d9e2b4c1f567",
-  "project_name": "agent-research-library",
+  "project_name": "project-name",
   "project_path": "/path/to/project",
   "confidence_level": "high|medium|low",
   "tags": ["tag1", "tag2"],
@@ -33,42 +33,133 @@
 
   "sections": [
     {
-      "key": "REPORT_ID:SECTION_NAME",
-      "title": "Section Title",
-      "path": "sections/SECTION_NAME/",
+      "key": "REPORT_ID:SIMPLE_TOPIC",
+      "title": "Simple Topic Title",
+      "type": "leaf",
+      "path": "sections/SIMPLE_TOPIC.md",
       "level": 1,
       "parent": null,
-      "children": [
-        "REPORT_ID:SECTION_NAME:SUBSECTION"
-      ],
-      "files": {
-        "full": "sections/SECTION_NAME/_FULL.md",
-        "overview": "sections/SECTION_NAME/_OVERVIEW.md"
-      },
-      "word_count": 0,
-      "confidence": "high|medium|low",
+      "word_count": 1500,
+      "markers": ["overview", "implementation", "api"],
+      "confidence": "high",
       "last_updated": "2025-10-02T10:00:00Z"
     },
     {
-      "key": "REPORT_ID:SECTION_NAME:SUBSECTION",
-      "title": "Subsection Title",
-      "path": "sections/SECTION_NAME/SUBSECTION.md",
-      "level": 2,
-      "parent": "REPORT_ID:SECTION_NAME",
-      "children": [],
+      "key": "REPORT_ID:MODERATE_TOPIC",
+      "title": "Moderate Topic with Subsections",
+      "type": "composite",
+      "path": "sections/MODERATE_TOPIC/",
+      "level": 1,
+      "parent": null,
       "files": {
-        "full": "sections/SECTION_NAME/SUBSECTION.md"
+        "overview": "_OVERVIEW.md",
+        "content": "_CONTENT.md"
       },
-      "word_count": 0,
-      "confidence": "high|medium|low",
+      "word_count": {
+        "overview": 300,
+        "content": 2000
+      },
+      "children": [
+        {
+          "key": "REPORT_ID:MODERATE_TOPIC:SUBTOPIC_A",
+          "title": "Subtopic A",
+          "type": "leaf",
+          "path": "sections/MODERATE_TOPIC/SUBTOPIC_A.md",
+          "level": 2,
+          "parent": "REPORT_ID:MODERATE_TOPIC",
+          "word_count": 1200,
+          "markers": ["config", "usage"],
+          "confidence": "high",
+          "last_updated": "2025-10-02T10:00:00Z"
+        },
+        {
+          "key": "REPORT_ID:MODERATE_TOPIC:SUBTOPIC_B",
+          "title": "Subtopic B",
+          "type": "leaf",
+          "path": "sections/MODERATE_TOPIC/SUBTOPIC_B.md",
+          "level": 2,
+          "parent": "REPORT_ID:MODERATE_TOPIC",
+          "word_count": 800,
+          "confidence": "medium",
+          "last_updated": "2025-10-02T10:00:00Z"
+        }
+      ],
+      "confidence": "high",
+      "last_updated": "2025-10-02T10:00:00Z"
+    },
+    {
+      "key": "REPORT_ID:COMPLEX_TOPIC",
+      "title": "Complex Hierarchical Topic",
+      "type": "composite",
+      "path": "sections/COMPLEX_TOPIC/",
+      "level": 1,
+      "parent": null,
+      "files": {
+        "overview": "_OVERVIEW.md"
+      },
+      "word_count": {
+        "overview": 400
+      },
+      "children": [
+        {
+          "key": "REPORT_ID:COMPLEX_TOPIC:SUBSYSTEM_A",
+          "title": "Major Subsystem A",
+          "type": "composite",
+          "path": "sections/COMPLEX_TOPIC/SUBSYSTEM_A/",
+          "level": 2,
+          "parent": "REPORT_ID:COMPLEX_TOPIC",
+          "files": {
+            "overview": "_OVERVIEW.md",
+            "content": "_CONTENT.md"
+          },
+          "word_count": {
+            "overview": 250,
+            "content": 1800
+          },
+          "children": [
+            {
+              "key": "REPORT_ID:COMPLEX_TOPIC:SUBSYSTEM_A:COMPONENT_1",
+              "title": "Component 1",
+              "type": "leaf",
+              "path": "sections/COMPLEX_TOPIC/SUBSYSTEM_A/COMPONENT_1.md",
+              "level": 3,
+              "parent": "REPORT_ID:COMPLEX_TOPIC:SUBSYSTEM_A",
+              "word_count": 900,
+              "confidence": "high",
+              "last_updated": "2025-10-02T10:00:00Z"
+            }
+          ],
+          "confidence": "high",
+          "last_updated": "2025-10-02T10:00:00Z"
+        },
+        {
+          "key": "REPORT_ID:COMPLEX_TOPIC:SUBSYSTEM_B",
+          "title": "Simple Subsystem B",
+          "type": "leaf",
+          "path": "sections/COMPLEX_TOPIC/SUBSYSTEM_B.md",
+          "level": 2,
+          "parent": "REPORT_ID:COMPLEX_TOPIC",
+          "word_count": 1400,
+          "markers": ["overview", "architecture", "integration"],
+          "confidence": "medium",
+          "last_updated": "2025-10-02T10:00:00Z"
+        }
+      ],
+      "confidence": "high",
       "last_updated": "2025-10-02T10:00:00Z"
     }
   ],
 
   "statistics": {
-    "total_sections": 0,
-    "total_words": 0,
-    "abstraction_levels": 0,
-    "max_depth": 0
+    "total_sections": 8,
+    "total_words": 12350,
+    "depth_distribution": {
+      "1": 3,
+      "2": 4,
+      "3": 1
+    },
+    "max_depth": 3,
+    "leaf_sections": 5,
+    "composite_sections": 3
   }
 }

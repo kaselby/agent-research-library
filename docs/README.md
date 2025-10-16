@@ -72,10 +72,10 @@ Each level has:
 - Component files - Specific implementations
 
 ### Project vs Global Scope
-- **Project reports**: Stored in `{project}/.claude_research/`
+- **Project reports**: Stored in `~/.claude/agent_research_library/projects/{project_slug}/`
   - Project-specific technical details
   - Can reference same project + global reports
-- **Global reports**: Stored in `~/.claude/research_reports/_global/`
+- **Global reports**: Stored in `~/.claude/agent_research_library/_global/`
   - User-level knowledge (patterns, best practices)
   - Reusable across all projects
 
@@ -161,7 +161,7 @@ Result: Validation report (confidence %, issues found)
   ↓
 If CRITICAL issues: report-creator fixes them
   ↓
-Final: Report in .claude_research/ACME_API/ (validated ✓)
+Final: Report in ~/.claude/agent_research_library/projects/{project}/ACME_API/ (validated ✓)
 ```
 
 ### Query Report
@@ -196,9 +196,8 @@ Claude: Load recommended sections → Answer user
 - Global reports: `~/.claude/research_reports/_global/`
 
 ### Project Files
-- Primary storage: `{project}/.claude_research/`
-- Backup storage: `~/.claude/research_reports/projects/{project_slug}/`
-- Git ignore: Add `.claude_research/` to `.gitignore`
+- All reports: `~/.claude/agent_research_library/projects/{project_slug}/`
+- No project-specific files or git ignore needed
 
 ## Best Practices
 

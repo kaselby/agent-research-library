@@ -13,16 +13,27 @@ This section covers... [what topics are included]
 
 ## Contents
 
-This section is organized into the following subsections:
+This section contains:
 
-### 1. [{SUBSECTION_A_KEY}]
-Brief description of subsection A and what it covers.
+### Core Content (_CONTENT.md) - *[Optional if fully decomposed]*
+[If present] Core architectural concepts and patterns that apply across all subsections.
 
-### 2. [{SUBSECTION_B_KEY}]
-Brief description of subsection B and what it covers.
+### Subsections:
 
-### 3. [{SUBSECTION_C_KEY}]
-Brief description of subsection C and what it covers.
+#### 1. [{SUBSECTION_A_KEY}] - {Subsection A Title}
+**Type**: [Standalone file | Directory with children]
+**Size**: [~X words]
+Brief description of what subsection A covers and when to read it.
+
+#### 2. [{SUBSECTION_B_KEY}] - {Subsection B Title}
+**Type**: [Standalone file | Directory with children]
+**Size**: [~X words]
+Brief description of what subsection B covers and when to read it.
+
+#### 3. [{SUBSECTION_C_KEY}] - {Subsection C Title}
+**Type**: [Standalone file | Directory with children]
+**Size**: [~X words]
+Brief description of what subsection C covers and when to read it.
 
 ## Key Concepts
 
@@ -37,7 +48,7 @@ Read this section if you need to understand:
 - [Use case 2]
 - [Use case 3]
 
-For implementation details, see the full section content in `_FULL.md` or individual subsection files.
+For implementation details, see the core content in `_CONTENT.md` (if present) or individual subsection files.
 
 ## Related Sections
 
@@ -59,5 +70,5 @@ For implementation details, see the full section content in `_FULL.md` or indivi
 
 **Navigation**:
 - Up: [`PARENT_SECTION_KEY`]
-- Full Content: See `_FULL.md`
+- Core Content: See `_CONTENT.md` (if present)
 - Subsections: Listed above
