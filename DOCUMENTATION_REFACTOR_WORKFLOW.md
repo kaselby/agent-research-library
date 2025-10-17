@@ -249,16 +249,22 @@ templates/                      - Only actual content templates (no docs)
 
 ### Phase 4: Delete Old Files
 
-#### Task 4.1: Delete obsolete documentation files ⏳
-**Status**: Not Started
+#### Task 4.1: Delete obsolete documentation files ✅
+**Status**: Completed
 
-**Files to Delete**:
-- [ ] docs/README.md (content merged into root README.md)
-- [ ] docs/RESEARCH_REPORT_SYSTEM.md (split into multiple focused docs)
-- [ ] docs/CLAUDE_CODE_INTEGRATION.md (renamed/streamlined to INTEGRATION_GUIDE.md)
-- [ ] docs/section_markers.md (absorbed into REPORT_SPECIFICATION.md)
-- [ ] docs/EXTRACT_SECTION_TOOL.md (absorbed into MCP_TOOLS.md)
-- [ ] templates/report_structure.md (absorbed into REPORT_SPECIFICATION.md)
+**Files Deleted**:
+- [x] docs/README.md (265 lines - content merged into root README.md)
+- [x] docs/RESEARCH_REPORT_SYSTEM.md (2030 lines - split into 4 focused docs)
+- [x] docs/CLAUDE_CODE_INTEGRATION.md (520 lines - renamed/streamlined to INTEGRATION_GUIDE.md)
+- [x] docs/section_markers.md (143 lines - absorbed into REPORT_SPECIFICATION.md)
+- [x] docs/EXTRACT_SECTION_TOOL.md (didn't exist - feature documented in MCP_TOOLS.md)
+- [x] templates/report_structure.md (204 lines - absorbed into REPORT_SPECIFICATION.md, deleted in Phase 2)
+
+**Remaining files in docs/**:
+- REPORT_SPECIFICATION.md (687 lines)
+- AGENT_SYSTEM.md (744 lines)
+- INTEGRATION_GUIDE.md (489 lines)
+- MCP_TOOLS.md (617 lines)
 
 ---
 
@@ -308,11 +314,11 @@ templates/                      - Only actual content templates (no docs)
 **Phase 1**: 5/5 tasks complete (100%) ✅
 **Phase 2**: 1/1 tasks complete (100%) ✅
 **Phase 3**: 4/4 tasks complete (100%) ✅
-**Phase 4**: 0/1 tasks complete (0%)
+**Phase 4**: 1/1 tasks complete (100%) ✅
 **Phase 5**: 0/1 tasks complete (0%)
 **Phase 6**: 0/3 tasks complete (0%)
 
-**Overall**: 10/15 tasks complete (67%)
+**Overall**: 11/15 tasks complete (73%)
 
 ---
 
