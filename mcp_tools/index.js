@@ -513,6 +513,143 @@ server.registerTool(
   }
 );
 
+/**
+ * ExtractSectionTool - Extract specific section from markdown using markers
+ */
+server.registerTool(
+  'extract_section',
+  {
+    description: 'Extract a specific section from a markdown file using section markers. Returns the content between <!-- section:id --> and <!-- /section:id --> markers. If markers not found, returns the entire file.',
+    inputSchema: {
+      file_path: z.string().describe('Absolute path to the markdown file'),
+      section_id: z.string().describe('Section marker ID to extract (e.g., "overview", "architecture", "implementation")')
+    }
+  },
+  async ({ file_path, section_id }) => {
+    try {
+      // Read the file
+      const content = await fs.readFile(file_path, 'utf-8');
+
+      // Build marker patterns
+      const startMarker = `<!-- section:${section_id} -->`;
+      const endMarker = `<!-- /section:${section_id} -->`;
+
+      // Find start marker
+      const startIndex = content.indexOf(startMarker);
+
+      if (startIndex === -1) {
+        // Markers not found - check if file is small enough to return whole thing
+        const wordCount = countWords(content);
+
+        if (wordCount < 1500) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                section_found: false,
+                fallback: 'full_file',
+                message: `Section markers not found. File is ${wordCount} words - returning entire content.`,
+                extracted_content: content,
+                word_count: wordCount
+              }, null, 2)
+            }]
+          };
+        } else {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                section_found: false,
+                message: `Section marker "${section_id}" not found in file. File is ${wordCount} words - too large to return without markers.`,
+                available_markers: extractAvailableMarkers(content),
+                suggestion: 'Use one of the available section markers listed above, or read the full file directly.'
+              }, null, 2)
+            }]
+          };
+        }
+      }
+
+      // Find end marker
+      const endIndex = content.indexOf(endMarker, startIndex);
+
+      if (endIndex === -1) {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              section_found: true,
+              message: `Start marker found but end marker "<!-- /section:${section_id} -->" is missing. Malformed section markers.`,
+              suggestion: 'Fix the section markers in the file.'
+            }, null, 2)
+          }]
+        };
+      }
+
+      // Extract content between markers (excluding the markers themselves)
+      const sectionStart = startIndex + startMarker.length;
+      const extractedContent = content.substring(sectionStart, endIndex).trim();
+
+      const wordCount = countWords(extractedContent);
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            section_found: true,
+            section_id: section_id,
+            file_path: file_path,
+            extracted_content: extractedContent,
+            word_count: wordCount,
+            message: `Successfully extracted section "${section_id}" (${wordCount} words)`
+          }, null, 2)
+        }]
+      };
+
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              message: `File not found: ${file_path}`
+            }, null, 2)
+          }]
+        };
+      }
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            message: `Error reading file: ${error.message}`
+          }, null, 2)
+        }]
+      };
+    }
+  }
+);
+
+/**
+ * Helper: Extract available section markers from content
+ */
+function extractAvailableMarkers(content) {
+  const markerRegex = /<!-- section:([a-z-]+) -->/g;
+  const markers = [];
+  let match;
+
+  while ((match = markerRegex.exec(content)) !== null) {
+    markers.push(match[1]);
+  }
+
+  return markers.length > 0 ? markers : ['No section markers found in file'];
+}
+
 // NOTE: check_report_exists tool is disabled - use research-report-finder agent instead
 // The agent provides intelligent fuzzy search with synonyms, which is more user-friendly
 // Code is kept above for reference but not registered
