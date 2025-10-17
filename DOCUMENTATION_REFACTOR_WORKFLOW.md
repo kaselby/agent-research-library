@@ -194,17 +194,18 @@ templates/                      - Only actual content templates (no docs)
 
 ### Phase 2: Clean Up templates/
 
-#### Task 2.1: Remove non-template from templates/ ⏳
-**Status**: Not Started
+#### Task 2.1: Remove non-template from templates/ ✅
+**Status**: Completed
 
 **Actions**:
-- [ ] Delete templates/report_structure.md (content moved to REPORT_SPECIFICATION.md)
-- [ ] Verify remaining files are actual templates:
+- [x] Delete templates/report_structure.md (content moved to REPORT_SPECIFICATION.md)
+- [x] Verify remaining files are actual templates:
   - section_content.md ✓
   - section_overview.md ✓
   - section_standalone.md ✓
   - metadata_template.json ✓
   - index_template.json ✓
+  - INSTALLED_VERSION_template.json ✓
 
 ---
 
@@ -299,13 +300,13 @@ templates/                      - Only actual content templates (no docs)
 ## Progress Tracker
 
 **Phase 1**: 5/5 tasks complete (100%) ✅
-**Phase 2**: 0/1 tasks complete (0%)
+**Phase 2**: 1/1 tasks complete (100%) ✅
 **Phase 3**: 0/4 tasks complete (0%)
 **Phase 4**: 0/1 tasks complete (0%)
 **Phase 5**: 0/1 tasks complete (0%)
 **Phase 6**: 0/3 tasks complete (0%)
 
-**Overall**: 5/15 tasks complete (33%)
+**Overall**: 6/15 tasks complete (40%)
 
 ---
 
