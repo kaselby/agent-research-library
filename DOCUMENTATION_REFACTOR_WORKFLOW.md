@@ -136,15 +136,16 @@ templates/                      - Only actual content templates (no docs)
 
 ---
 
-#### Task 1.4: Create MCP_TOOLS.md ⏳
-**Status**: Not Started
+#### Task 1.4: Create MCP_TOOLS.md ✅
+**Status**: Completed
 **Location**: docs/MCP_TOOLS.md
-**Estimated Size**: 200-250 lines
+**Actual Size**: 617 lines
 
 **Content Sources**:
-- [ ] Extract from mcp_tools/README.md (keep original file)
-- [ ] Absorb ALL of EXTRACT_SECTION_TOOL.md (76 lines)
-- [ ] Extract ReportRegistryTool from CLAUDE_CODE_INTEGRATION.md
+- [x] Extract from mcp_tools/README.md (keep original file)
+- [x] Absorb extract_section tool details from mcp_tools/index.js
+- [x] Note: EXTRACT_SECTION_TOOL.md doesn't exist
+- [x] Note: ReportRegistryTool is example code, not actual MCP tool (superseded by research-report-finder agent)
 
 **Sections**:
 1. Overview
@@ -297,14 +298,14 @@ templates/                      - Only actual content templates (no docs)
 
 ## Progress Tracker
 
-**Phase 1**: 3/5 tasks complete (60%)
+**Phase 1**: 4/5 tasks complete (80%)
 **Phase 2**: 0/1 tasks complete (0%)
 **Phase 3**: 0/4 tasks complete (0%)
 **Phase 4**: 0/1 tasks complete (0%)
 **Phase 5**: 0/1 tasks complete (0%)
 **Phase 6**: 0/3 tasks complete (0%)
 
-**Overall**: 3/15 tasks complete (20%)
+**Overall**: 4/15 tasks complete (27%)
 
 ---
 
