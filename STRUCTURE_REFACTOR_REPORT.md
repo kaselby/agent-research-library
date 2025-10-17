@@ -184,17 +184,25 @@ The following agent files still reference the old structure:
 
 **Action Required**: Regenerate these agent prompts using the updated documentation as reference.
 
-### 2. MCP Tools Updates Needed
+### 2. MCP Tools Updates ✅ (Completed)
 
-- **lint_report tool**
-  - Update to validate v2.0 schema
-  - Check for _CONTENT.md instead of _FULL.md
-  - Validate type field and markers
+- **lint_report tool** ✅ (Completed)
+  - Updated to validate v2.0 schema
+  - Validates `type` field ("leaf" | "composite")
+  - Validates `markers` array format
+  - Checks for _CONTENT.md (optional) instead of _FULL.md
+  - Handles standalone files (leaf sections)
+  - Validates word_count format
+  - Schema version validation
+  - Legacy compatibility warnings
 
-- **section_extractor tool** (New - Proposed)
-  - Extract content between section markers
-  - Support partial file loading
-  - Integrate with research-librarian
+- **extract_section tool** ✅ (Completed)
+  - Implemented and tested
+  - Extracts content between `<!-- section:id -->` markers
+  - Supports partial file loading
+  - Returns full file if <1500 words and no markers found
+  - Lists available markers if section not found
+  - Documentation: `docs/EXTRACT_SECTION_TOOL.md`
 
 ### 3. Migration Path for Existing Reports
 
@@ -241,10 +249,10 @@ Existing reports like BROWSER_USE need migration:
 - Regenerate agent prompts with new structure
 - Test agent behavior with v2.0 reports
 
-### Phase 3: Tool Updates (Pending)
-- Update linter for v2.0 validation
-- Create section extractor tool
-- Test with real reports
+### Phase 3: Tool Updates ✅ (Completed)
+- ✅ Update linter for v2.0 validation
+- ✅ Create section extractor tool (extract_section)
+- ⏳ Test with real reports (pending)
 
 ### Phase 4: Migration (Optional)
 - Migrate existing reports if needed
@@ -263,6 +271,51 @@ Existing reports like BROWSER_USE need migration:
 The v2.0 structure refactor successfully addresses the rigidity and redundancy issues of v1.0. The new flexible hierarchy allows reports to organize naturally while maintaining the benefits of structured, hierarchical documentation. The main work remaining is updating the agent prompts and tools to fully support the new structure.
 
 The refactor maintains backward compatibility through schema versioning while providing a cleaner, more intuitive structure for future reports. The addition of standalone files as first-class citizens and optional _CONTENT.md files significantly reduces artificial complexity while preserving the ability to create deeply nested structures where genuinely needed.
+
+---
+
+## Status Update (October 16, 2024)
+
+### Completed Since Initial Report
+
+**Section Extraction Tool Implementation** ✅
+- Implemented `extract_section` MCP tool in `mcp_tools/index.js`
+- Extracts content between HTML comment markers
+- Smart fallback: returns full file if <1500 words
+- Error handling for missing/malformed markers
+- Lists available markers when section not found
+- Tested and verified working
+- Documentation created: `docs/EXTRACT_SECTION_TOOL.md`
+
+**Linter Update for v2.0 Schema** ✅
+- Updated `lint_report` tool in `mcp_tools/index.js` to validate v2.0 reports
+- Added validation for `type` field ("leaf" | "composite")
+- Added validation for `markers` array format
+- Changed from checking `_FULL.md` to `_CONTENT.md` (optional for composites)
+- Added support for standalone files (leaf sections)
+- Validates `word_count` format (number for leaf, optional object for composite)
+- Added `schema_version` field validation
+- Legacy support: warns about v1.0 schema and deprecated `_FULL.md` files
+- Updated word count guidelines to match v2.0 recommendations
+- Syntax validated and working
+
+### Current Status Summary
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Templates | ✅ Complete | All updated to v2.0 |
+| Documentation | ✅ Complete | Core docs updated |
+| Schema v2.0 | ✅ Complete | Metadata template ready |
+| extract_section tool | ✅ Complete | Implemented and tested |
+| lint_report tool | ✅ Complete | Updated for v2.0 validation |
+| Agent prompts | ⏳ Pending | Need regeneration |
+| Testing | ⏳ Pending | Need real report test |
+
+### Immediate Next Steps
+
+1. **Regenerate agent prompts** using updated documentation
+2. **Create test report** using v2.0 structure
+3. **Verify end-to-end workflow** with all components
 
 ---
 

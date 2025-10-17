@@ -231,7 +231,7 @@ function extractCrossReferences(content) {
 server.registerTool(
   'lint_report',
   {
-    description: 'Validate the structure and formatting of a research report. Checks for required files, proper naming conventions, metadata correctness, section keys, cross-references, and word counts.',
+    description: 'Validate the structure and formatting of a research report (v2.0 schema). Checks for required files, proper naming conventions, metadata correctness (including type field and markers), section keys, cross-references, and word counts. Validates both leaf (standalone) and composite (directory) sections.',
     inputSchema: {
       report_path: z.string().describe('Absolute path to the report directory to validate')
     }
@@ -278,6 +278,15 @@ server.registerTool(
         reportId = metadata.id;
       }
 
+      // v2.0: Validate schema version
+      if (!metadata.schema_version) {
+        warnings.push('metadata.json missing "schema_version" field (should be "2.0" for v2.0 reports)');
+      } else if (metadata.schema_version === '1.0') {
+        warnings.push('metadata.json uses schema_version "1.0" - consider migrating to v2.0');
+      } else if (metadata.schema_version !== '2.0') {
+        warnings.push(`metadata.json has unknown schema_version "${metadata.schema_version}" (expected "2.0")`);
+      }
+
       // Validate sections array exists
       if (!metadata.sections || !Array.isArray(metadata.sections)) {
         errors.push('metadata.json missing or invalid "sections" array');
@@ -302,7 +311,7 @@ server.registerTool(
         if (section.key) {
           metadataSectionKeys.add(section.key);
 
-          // NEW: Validate section key format
+          // Validate section key format
           if (reportId) {
             const keyError = validateSectionKey(section.key, reportId);
             if (keyError) {
@@ -310,13 +319,59 @@ server.registerTool(
             }
           }
 
+          // v2.0: Validate type field
+          if (!section.type) {
+            errors.push(`Section "${section.key}" missing required "type" field (must be "leaf" or "composite")`);
+          } else if (section.type !== 'leaf' && section.type !== 'composite') {
+            errors.push(`Section "${section.key}" has invalid type "${section.type}" (must be "leaf" or "composite")`);
+          }
+
+          // v2.0: Validate markers array format if present
+          if (section.markers) {
+            if (!Array.isArray(section.markers)) {
+              errors.push(`Section "${section.key}" has invalid "markers" field (must be an array)`);
+            } else {
+              for (const marker of section.markers) {
+                if (typeof marker !== 'string' || !/^[a-z][a-z0-9-]*$/.test(marker)) {
+                  errors.push(`Section "${section.key}" has invalid marker "${marker}" (must be lowercase with hyphens)`);
+                }
+              }
+            }
+          }
+
+          // v2.0: Validate word_count format
+          if (section.word_count !== undefined) {
+            if (section.type === 'leaf') {
+              if (typeof section.word_count !== 'number') {
+                errors.push(`Section "${section.key}" (leaf) must have word_count as a number`);
+              }
+            } else if (section.type === 'composite') {
+              if (typeof section.word_count === 'number') {
+                warnings.push(`Section "${section.key}" (composite) has simple word_count - consider using object format for granular tracking`);
+              } else if (typeof section.word_count === 'object') {
+                // Validate object format
+                if (section.word_count.overview !== undefined && typeof section.word_count.overview !== 'number') {
+                  errors.push(`Section "${section.key}" word_count.overview must be a number`);
+                }
+                if (section.word_count.content !== undefined && typeof section.word_count.content !== 'number') {
+                  errors.push(`Section "${section.key}" word_count.content must be a number`);
+                }
+              }
+            }
+          }
+
           // Store file mappings for validation
           if (section.files) {
-            if (section.files.full) {
-              sectionFileMap.set(section.key, section.files.full);
+            // v2.0: Check for content file instead of full
+            if (section.files.content) {
+              sectionFileMap.set(section.key, section.files.content);
             }
             if (section.files.overview) {
               sectionFileMap.set(`${section.key}:overview`, section.files.overview);
+            }
+            // Legacy: warn if using old "full" field
+            if (section.files.full) {
+              warnings.push(`Section "${section.key}" uses deprecated "files.full" field - should be "files.content" in v2.0`);
             }
           }
         }
@@ -338,12 +393,12 @@ server.registerTool(
         warnings.push('_OVERVIEW.md seems too short (< 100 characters)');
       }
 
-      // NEW: Word count validation for overview (300-700 words)
+      // Word count validation for report overview (400-700 words)
       overviewWordCount = countWords(overviewContent);
       if (overviewWordCount < 300) {
-        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (recommended: 300-700)`);
-      } else if (overviewWordCount > 700) {
-        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (recommended: 300-700, max: 1000)`);
+        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (typical: 400-700)`);
+      } else if (overviewWordCount > 800) {
+        warnings.push(`_OVERVIEW.md has ${overviewWordCount} words (typical: 400-700, max: 1000)`);
       }
 
     } catch {
@@ -384,44 +439,56 @@ server.registerTool(
           } else {
             actualSectionFiles.add(`sections/${section}/_OVERVIEW.md`);
 
-            // NEW: Validate _OVERVIEW.md word count (300-600 words)
+            // Validate _OVERVIEW.md word count (200-400 words)
             try {
               const content = await fs.readFile(path.join(sectionPath, '_OVERVIEW.md'), 'utf-8');
               const wordCount = countWords(content);
-              if (wordCount < 300) {
-                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (recommended: 300-600)`);
-              } else if (wordCount > 600) {
-                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (recommended: 300-600, max: 800)`);
+              if (wordCount < 200) {
+                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (typical: 200-400)`);
+              } else if (wordCount > 500) {
+                warnings.push(`Section "${section}"/_OVERVIEW.md has ${wordCount} words (typical: 200-400, max: 600)`);
               }
 
-              // NEW: Extract cross-references
+              // Extract cross-references
               const refs = extractCrossReferences(content);
               refs.forEach(ref => allCrossReferences.add(ref));
             } catch {}
           }
 
-          if (!sectionFiles.includes('_FULL.md')) {
-            errors.push(`Section "${section}" missing _FULL.md`);
-          } else {
+          // v2.0: Check for _CONTENT.md (optional in v2.0)
+          if (sectionFiles.includes('_CONTENT.md')) {
+            actualSectionFiles.add(`sections/${section}/_CONTENT.md`);
+
+            // Validate _CONTENT.md word count (1500-2500 words)
+            try {
+              const content = await fs.readFile(path.join(sectionPath, '_CONTENT.md'), 'utf-8');
+              const wordCount = countWords(content);
+              if (wordCount < 1000) {
+                warnings.push(`Section "${section}"/_CONTENT.md has ${wordCount} words (typical: 1500-2500)`);
+              } else if (wordCount > 3000) {
+                warnings.push(`Section "${section}"/_CONTENT.md has ${wordCount} words (typical: 1500-2500, max: 3500)`);
+              }
+
+              // Extract cross-references
+              const refs = extractCrossReferences(content);
+              refs.forEach(ref => allCrossReferences.add(ref));
+            } catch {}
+          }
+
+          // Legacy: warn if old _FULL.md exists
+          if (sectionFiles.includes('_FULL.md')) {
+            warnings.push(`Section "${section}" has deprecated _FULL.md file - should be renamed to _CONTENT.md in v2.0`);
             actualSectionFiles.add(`sections/${section}/_FULL.md`);
 
-            // NEW: Validate _FULL.md word count (2000-5000 words)
+            // Still validate it for now
             try {
               const content = await fs.readFile(path.join(sectionPath, '_FULL.md'), 'utf-8');
-              const wordCount = countWords(content);
-              if (wordCount < 2000) {
-                warnings.push(`Section "${section}"/_FULL.md has ${wordCount} words (recommended: 2000-5000)`);
-              } else if (wordCount > 5000) {
-                warnings.push(`Section "${section}"/_FULL.md has ${wordCount} words (recommended: 2000-5000, max: 6000)`);
-              }
-
-              // NEW: Extract cross-references
               const refs = extractCrossReferences(content);
               refs.forEach(ref => allCrossReferences.add(ref));
             } catch {}
           }
 
-          // NEW: Check for L2 component files (should be 600-1200 words)
+          // Check for subsection files (should be 800-1500 words)
           for (const file of sectionFiles) {
             if (file.endsWith('.md') && !file.startsWith('_')) {
               const filePath = path.join(sectionPath, file);
@@ -431,17 +498,39 @@ server.registerTool(
                 const content = await fs.readFile(filePath, 'utf-8');
                 const wordCount = countWords(content);
                 if (wordCount < 600) {
-                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (recommended: 600-1200)`);
-                } else if (wordCount > 1200) {
-                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (recommended: 600-1200, max: 1500)`);
+                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (typical: 800-1500)`);
+                } else if (wordCount > 2000) {
+                  warnings.push(`Section "${section}"/${file} has ${wordCount} words (typical: 800-1500, consider section markers if >2000)`);
                 }
 
-                // NEW: Extract cross-references
+                // Extract cross-references
                 const refs = extractCrossReferences(content);
                 refs.forEach(ref => allCrossReferences.add(ref));
               } catch {}
             }
           }
+        } else if (stat.isFile() && section.endsWith('.md')) {
+          // v2.0: Standalone file (leaf section) - check naming
+          if (!/^[A-Z][A-Z0-9_]*\.md$/.test(section)) {
+            warnings.push(`Standalone section file "${section}" should use UPPERCASE_WITH_UNDERSCORES naming`);
+          }
+
+          actualSectionFiles.add(`sections/${section}`);
+
+          // Validate standalone file word count (1000-2000 words)
+          try {
+            const content = await fs.readFile(sectionPath, 'utf-8');
+            const wordCount = countWords(content);
+            if (wordCount < 800) {
+              warnings.push(`Standalone section "${section}" has ${wordCount} words (typical: 1000-2000)`);
+            } else if (wordCount > 2500) {
+              warnings.push(`Standalone section "${section}" has ${wordCount} words (typical: 1000-2000, consider section markers if >2000)`);
+            }
+
+            // Extract cross-references
+            const refs = extractCrossReferences(content);
+            refs.forEach(ref => allCrossReferences.add(ref));
+          } catch {}
         }
       }
 
