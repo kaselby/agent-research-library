@@ -25,7 +25,7 @@ This is the only MCP tool currently active. Report searching is handled by the `
 **Structural Checks (Errors):**
 - Required files exist (_OVERVIEW.md, metadata.json, sections/)
 - Section directories use UPPERCASE_WITH_UNDERSCORES naming
-- Each L1 section has _OVERVIEW.md and _FULL.md
+- Each L1 section has _OVERVIEW.md and optional _CONTENT.md (v2.0)
 - metadata.json has all required fields (id, topic, scope, created, sections)
 - Section keys follow format: REPORT_ID:L1[:L2[:L3]]
 - Cross-references point to existing sections
@@ -35,10 +35,12 @@ This is the only MCP tool currently active. Report searching is handled by the `
 - Word count ranges:
   - Report _OVERVIEW.md: 300-700 words (max 1000)
   - Section _OVERVIEW.md: 300-600 words (max 800)
-  - Section _FULL.md: 2000-5000 words (max 6000)
+  - Section _CONTENT.md: 1500-2500 words (max 3500) (v2.0)
+  - Standalone section files: 1000-2000 words (max 2500) (v2.0)
   - L2 component files: 600-1200 words (max 1500)
 - Files exist on disk but not registered in metadata.json (orphaned sections)
 - Content structure issues (missing headings, too short)
+- Warning if deprecated _FULL.md files found (should use _CONTENT.md in v2.0)
 
 ## Installation
 

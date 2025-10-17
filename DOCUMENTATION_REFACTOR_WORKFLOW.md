@@ -270,14 +270,20 @@ templates/                      - Only actual content templates (no docs)
 
 ### Phase 5: Fix v2.0 References
 
-#### Task 5.1: Fix _FULL.md → _CONTENT.md references ⏳
-**Status**: Not Started
+#### Task 5.1: Fix _FULL.md → _CONTENT.md references ✅
+**Status**: Completed
 
-**Files to Check**:
-- [ ] REPORT_SPECIFICATION.md - ensure all examples use _CONTENT.md
-- [ ] AGENT_SYSTEM.md - update agent descriptions for v2.0
-- [ ] INTEGRATION_GUIDE.md - ensure v2.0 terminology
-- [ ] MCP_TOOLS.md - ensure lint_report docs reflect v2.0
+**Files Checked**:
+- [x] REPORT_SPECIFICATION.md - all examples use _CONTENT.md, _FULL.md only in deprecation notice ✓
+- [x] AGENT_SYSTEM.md - all agent descriptions use v2.0 terminology ✓
+- [x] INTEGRATION_GUIDE.md - all examples use v2.0 terminology ✓
+- [x] MCP_TOOLS.md - lint_report docs use v2.0 terminology, _FULL.md only in migration examples ✓
+- [x] README.md - all examples use _CONTENT.md, mentions v2.0 changes ✓
+- [x] mcp_tools/README.md - updated to v2.0 terminology:
+  - Changed "Each L1 section has _OVERVIEW.md and _FULL.md" → "...optional _CONTENT.md (v2.0)"
+  - Changed "_FULL.md: 2000-5000 words" → "_CONTENT.md: 1500-2500 words (v2.0)"
+  - Added standalone section file word counts
+  - Added warning for deprecated _FULL.md files
 
 ---
 
@@ -315,10 +321,10 @@ templates/                      - Only actual content templates (no docs)
 **Phase 2**: 1/1 tasks complete (100%) ✅
 **Phase 3**: 4/4 tasks complete (100%) ✅
 **Phase 4**: 1/1 tasks complete (100%) ✅
-**Phase 5**: 0/1 tasks complete (0%)
+**Phase 5**: 1/1 tasks complete (100%) ✅
 **Phase 6**: 0/3 tasks complete (0%)
 
-**Overall**: 11/15 tasks complete (73%)
+**Overall**: 12/15 tasks complete (80%)
 
 ---
 
