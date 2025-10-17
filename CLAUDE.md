@@ -34,7 +34,7 @@ The system consists of three main components:
 
 The installer automatically:
 1. **Copies files** to `~/.claude/research_reports/`:
-   - Documentation (RESEARCH_REPORT_SYSTEM.md, CLAUDE_CODE_INTEGRATION.md)
+   - Documentation (all docs/ files: REPORT_SPECIFICATION.md, AGENT_SYSTEM.md, INTEGRATION_GUIDE.md, MCP_TOOLS.md, README.md)
    - MCP tools (in `mcp_tools/`)
    - Report templates (in `templates/`)
 2. **Installs MCP server** via `claude mcp add` command
@@ -160,7 +160,9 @@ node index.js lint ~/.claude/agent_research_library/projects/{project_slug}/REPO
 cp agents/*.md ~/.claude/agents/
 
 # View installed documentation
-cat ~/.claude/research_reports/RESEARCH_REPORT_SYSTEM.md
+cat ~/.claude/research_reports/docs/REPORT_SPECIFICATION.md
+cat ~/.claude/research_reports/docs/AGENT_SYSTEM.md
+cat ~/.claude/research_reports/README.md
 ```
 
 ## Key Design Principles
@@ -197,9 +199,12 @@ Reports can reference other sections:
 
 ## Documentation Files
 
+Focused documentation structure (Phase 1 complete):
 - **README.md**: User-facing quick start guide
-- **RESEARCH_REPORT_SYSTEM.md**: Complete system specification (~2000 lines)
-- **CLAUDE_CODE_INTEGRATION.md**: Technical integration guide
+- **docs/REPORT_SPECIFICATION.md**: Complete v2.0 format specification
+- **docs/AGENT_SYSTEM.md**: Agent architecture, workflows, and cost analysis
+- **docs/INTEGRATION_GUIDE.md**: Installation, setup, and troubleshooting
+- **docs/MCP_TOOLS.md**: Tool reference (lint_report, extract_section)
 - **orchestration/GLOBAL_INSTRUCTIONS.md**: Brief global Claude Code instructions (~500 tokens, added to ~/.claude/CLAUDE.md)
 - **orchestration/REPORT_CREATION.md**: Detailed report creation workflow for main Claude
 - **agents/*.md**: Agent definitions with YAML frontmatter

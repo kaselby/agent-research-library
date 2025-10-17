@@ -69,9 +69,9 @@ cp "$SCRIPT_DIR/orchestration/REPORT_CREATION.md" "$TARGET_DIR/" || {
     exit 1
 }
 
-# Verify critical documentation files
-if [ ! -f "$TARGET_DIR/RESEARCH_REPORT_SYSTEM.md" ]; then
-    echo "✗ Error: RESEARCH_REPORT_SYSTEM.md not found after copy"
+# Verify critical documentation files (v2.0 docs structure)
+if [ ! -f "$TARGET_DIR/README.md" ]; then
+    echo "✗ Error: README.md not found after copy"
     exit 1
 fi
 
@@ -351,8 +351,11 @@ echo "  Documentation"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Quick start: $TARGET_DIR/README.md"
-echo "Full system: $TARGET_DIR/RESEARCH_REPORT_SYSTEM.md"
-echo "Integration: $TARGET_DIR/CLAUDE_CODE_INTEGRATION.md"
+echo "Documentation:"
+echo "  • Report format: $TARGET_DIR/REPORT_SPECIFICATION.md"
+echo "  • Agents & workflows: $TARGET_DIR/AGENT_SYSTEM.md"
+echo "  • Installation & setup: $TARGET_DIR/INTEGRATION_GUIDE.md"
+echo "  • MCP tools: $TARGET_DIR/MCP_TOOLS.md"
 echo ""
 echo "Test the system:"
 echo '  > "Create a research report on [your library]"'

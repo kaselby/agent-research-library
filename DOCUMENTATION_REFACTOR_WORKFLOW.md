@@ -211,24 +211,29 @@ templates/                      - Only actual content templates (no docs)
 
 ### Phase 3: Update References
 
-#### Task 3.1: Update CLAUDE.md references ⏳
-**Status**: Not Started
+#### Task 3.1: Update CLAUDE.md references ✅
+**Status**: Completed
 
-- [ ] Check CLAUDE.md for doc references
-- [ ] Update any paths that changed
+- [x] Check CLAUDE.md for doc references
+- [x] Update any paths that changed
+  - Updated installer documentation list
+  - Updated "Documentation Files" section with new structure
+  - Updated "View installed documentation" commands
 
-#### Task 3.2: Update orchestration/ references ⏳
-**Status**: Not Started
+#### Task 3.2: Update orchestration/ references ✅
+**Status**: Completed
 
-- [ ] Check orchestration/GLOBAL_INSTRUCTIONS.md for doc references
-- [ ] Check orchestration/REPORT_CREATION.md for doc references
-- [ ] Update any paths that changed
+- [x] Check orchestration/GLOBAL_INSTRUCTIONS.md for doc references
+- [x] Check orchestration/REPORT_CREATION.md for doc references
+- [x] No updates needed - references are still valid
 
-#### Task 3.3: Update install.sh references ⏳
-**Status**: Not Started
+#### Task 3.3: Update install.sh references ✅
+**Status**: Completed
 
-- [ ] Check install.sh for hardcoded doc paths
-- [ ] Update any paths that changed
+- [x] Check install.sh for hardcoded doc paths
+- [x] Update any paths that changed
+  - Updated verification check from RESEARCH_REPORT_SYSTEM.md to README.md
+  - Updated documentation section to reference all 4 new docs
 
 #### Task 3.4: Update cross-references in new docs ⏳
 **Status**: Not Started
