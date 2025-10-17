@@ -164,21 +164,21 @@ templates/                      - Only actual content templates (no docs)
 
 ---
 
-#### Task 1.5: Merge READMEs ⏳
-**Status**: Not Started
+#### Task 1.5: Merge READMEs ✅
+**Status**: Completed
 **Location**: README.md (root)
-**Estimated Size**: 150-200 lines
+**Actual Size**: 338 lines (reduced from 494 total)
 
 **Content Sources**:
-- [ ] Use root README.md as base (229 lines)
-- [ ] Extract unique content from docs/README.md (265 lines)
-- [ ] Remove overlap between the two
+- [x] Use root README.md as base (229 lines)
+- [x] Extract unique content from docs/README.md (265 lines)
+- [x] Remove overlap between the two
 
 **Updates Needed**:
-- [ ] Keep user-focused, quick start oriented
-- [ ] Remove details now in other docs
-- [ ] Add clear links to docs/ for more information
-- [ ] Update for v2.0
+- [x] Keep user-focused, quick start oriented
+- [x] Remove details now in other docs
+- [x] Add clear links to docs/ for more information
+- [x] Update for v2.0
 
 **Sections**:
 1. Overview
@@ -298,14 +298,14 @@ templates/                      - Only actual content templates (no docs)
 
 ## Progress Tracker
 
-**Phase 1**: 4/5 tasks complete (80%)
+**Phase 1**: 5/5 tasks complete (100%) ✅
 **Phase 2**: 0/1 tasks complete (0%)
 **Phase 3**: 0/4 tasks complete (0%)
 **Phase 4**: 0/1 tasks complete (0%)
 **Phase 5**: 0/1 tasks complete (0%)
 **Phase 6**: 0/3 tasks complete (0%)
 
-**Overall**: 4/15 tasks complete (27%)
+**Overall**: 5/15 tasks complete (33%)
 
 ---
 
